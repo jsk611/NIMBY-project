@@ -11,7 +11,9 @@ public class Player : MonoBehaviourPunCallbacks
     public GameObject canvas;
     public Text nickName;
     public Camera maincam;
+    [SerializeField] GameManager gameManager;
     [SerializeField] GameObject trash;
+    [SerializeField] Text zoneT;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,16 +23,24 @@ public class Player : MonoBehaviourPunCallbacks
             maincam.enabled = false;
         }
         nickName.text = photonView.Owner.NickName;
+
+
     }
     private void Update()
     {
-        if(photonView.IsMine)
+        if(gameManager.isStarted)
         {
-            if(Input.GetKeyDown(KeyCode.Space))
+            if(photonView.IsMine)
             {
-                photonView.RPC("MakeTrash", RpcTarget.All);
+                if(Input.GetKeyDown(KeyCode.Space))
+                {
+                    photonView.RPC("MakeTrash", RpcTarget.All);
+                }
             }
+
+
         }
+
     }
     // Update is called once per frame
     void LateUpdate()
@@ -44,9 +54,25 @@ public class Player : MonoBehaviourPunCallbacks
         }
     }
 
+
+    void Clean()
+    {
+
+    }
+
     [PunRPC]
     void MakeTrash()
     {
         Instantiate(trash, transform.position, Quaternion.identity);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.CompareTag("Zone") && gameManager.isStarted)
+        {
+            Zone z = collision.GetComponent<Zone>();
+            Debug.Log(z.owner.photonView.Owner.NickName + "狼 备开");
+            zoneT.text = z.owner.photonView.Owner.NickName + "狼 备开";
+        }
     }
 }

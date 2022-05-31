@@ -6,44 +6,57 @@ using Photon.Realtime;
 
 public class GameManager : MonoBehaviourPunCallbacks
 {
-    int playerCount = 0;
-    List<int> players;
-    [SerializeField] Zone[] zones;
+    [SerializeField] Zone[] zones = new Zone[4];
+    public bool isStarted;
     // Start is called before the first frame update
     void Awake()
     {
-        players = new List<int>();
+
+    }
+    private void Start()
+    {
+        zones = GameObject.Find("Areas").transform.GetComponentsInChildren<Zone>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetKeyDown(KeyCode.G) && !isStarted)
+            photonView.RPC("GameStart", RpcTarget.All);
     }
 
-    public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
-    {
-        playerCount++;
-        //players.Add(int.Parse(newPlayer.UserId));
 
-        if(playerCount == 2)
-        {
-            GameSetUp();
-        }
-    }
-    public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
-    {
-        playerCount--;
-        //players.Remove(int.Parse(otherPlayer.UserId));
-    }
-
-    void GameSetUp()
+    [PunRPC]
+    void GameStart()
     {
         Player[] p = FindObjectsOfType<Player>();
-        for(int i=0; i<2; i++)
+        for(int i=0; i<p.Length; i++)
         {
-            zones[i].ownerId = p[i].photonView.ViewID;
-            zones[i].spr.color = Color.red;
+            for(int j=0; j<p.Length - i-1; j++)
+            {
+                if(p[j].photonView.ViewID > p[j+1].photonView.ViewID)
+                {
+                    var tmp = p[j + 1];
+                    p[j + 1] = p[j];
+                    p[j] = tmp;
+                }
+            }
         }
+
+        for(int i=0; i<PhotonNetwork.PlayerList.Length; i++)
+        {
+            zones[i].owner = p[i];
+            zones[i].spr.color = p[i].GetComponent<SpriteRenderer>().color;
+
+            if(p[i].photonView.IsMine)
+                p[i].transform.position = zones[i].transform.position;
+            
+        }
+        isStarted = true;
+        Debug.Log("game start");
+
+
     }
+
+
 }

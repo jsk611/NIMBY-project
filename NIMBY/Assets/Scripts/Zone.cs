@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Zone : MonoBehaviour
 {
-    public int ownerId;
+    public Player owner;
     public SpriteRenderer spr;
 
     private void Awake()
