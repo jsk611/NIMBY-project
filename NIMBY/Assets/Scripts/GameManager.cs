@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 {
     [SerializeField] Zone[] zones = new Zone[4];
     public bool isStarted;
+    public Zone myZone;
     // Start is called before the first frame update
     void Awake()
     {
@@ -49,7 +50,10 @@ public class GameManager : MonoBehaviourPunCallbacks
             zones[i].spr.color = p[i].GetComponent<SpriteRenderer>().color;
 
             if(p[i].photonView.IsMine)
+            {
+                myZone = zones[i];
                 p[i].transform.position = zones[i].transform.position;
+            }
             
         }
         isStarted = true;

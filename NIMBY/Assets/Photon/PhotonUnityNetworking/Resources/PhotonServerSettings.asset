@@ -43,6 +43,9 @@ MonoBehaviour:
   - AddPlayer
   - GameSetUp
   - GameStart
+  - Chat
+  - Report
+  - Arrested_1
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
