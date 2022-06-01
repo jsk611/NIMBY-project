@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Zone
+  - Trash
   layers:
   - Default
   - TransparentFX
@@ -13,7 +14,7 @@ TagManager:
   - Water
   - UI
   - Player
-  - 
+  - Trash
   - 
   - 
   - 

@@ -76,68 +76,78 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
+    Collider2D trashHit;
+    Collider2D[] enemyHit;
     private void FixedUpdate() //신고범위
     {
-        RaycastHit2D[] circle = Physics2D.CircleCastAll(transform.position, 3f, Vector2.zero, 0f, LayerMask.GetMask("Player"));
+        if (!gameManager.isStarted)
+            return;
 
-        if (circle != null)
+        enemyHit = Physics2D.OverlapCircleAll(transform.position, 1.5f, LayerMask.GetMask("Player"));
+        trashHit = Physics2D.OverlapCircle(transform.position, 1.5f, LayerMask.GetMask("Trash"));
+        Debug.DrawRay(transform.position, Vector2.right * 1.5f, Color.red);
+
+        if (enemyHit != null)
         {
             if (Input.GetKeyDown(KeyCode.Q) && photonView.IsMine)
-                Report(circle);
+                photonView.RPC("Report", RpcTarget.All);
 
         }
+        //if(trashHit != null)
+        //{
+        //    if(Input.GetKeyDown(KeyCode.LeftShift) && photonView.IsMine)
+        //    {
+        //        photonView.RPC("Clean", RpcTarget.All);
+        //    }
+        //}
     }
-    void Report(RaycastHit2D[] circle) //신고
-    {
-        foreach (var i in circle)
-        {
-            if (i.collider.gameObject == gameObject)
-                continue;
-            Player iP = i.collider.GetComponent<Player>();
-
-            if (iP.isCrimed)
-                iP.Arrested();
-        }
-    }
-
-    void Clean() //청소
-    {
-
-    }
-
+    #region 쓰레기 무단투기
     Coroutine c = null;
     [PunRPC]
     void MakeTrash() //쓰레기 무단투기
     {
-        if(inOtherZone)
+        if(inOtherZone && trashHit == null)
         {
             Instantiate(trash, transform.position, Quaternion.identity);
             if (c != null) StopCoroutine(c);
             c = StartCoroutine(Criminal());
         }
     }
+
     IEnumerator Criminal() //범죄행위를 저질렀을때(무단투기)
     {
         isCrimed = true;
+        speed = 4;
         yield return new WaitForSeconds(10f);
         isCrimed = false;
+        speed = 5;
     }
+    #endregion
+    #region 신고
+    [PunRPC]
+    void Report() //신고
+    {
+        foreach (var i in enemyHit)
+        {
+            if (i.gameObject == gameObject)
+                continue;
+            Player iP = i.GetComponent<Player>();
 
+            if (iP.isCrimed)
+                iP.Arrested();
+        }
+    }
+    #endregion
     #region 체포당함
     public void Arrested()
-    {
-        photonView.RPC("Arrested_1", RpcTarget.All);
-    }
-
-    [PunRPC]
-    public void Arrested_1() //신고당함
     {
         //자신의 존으로 이동
         transform.position = gameManager.myZone.transform.position;
         //10초간 정지 및 실명
-        if(photonView.IsMine)
+        if (photonView.IsMine)
             StartCoroutine(StopAndBlind());
     }
+
     IEnumerator StopAndBlind() 
     {
         StopCoroutine(Criminal());
@@ -149,6 +159,15 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         isArrested = false;
     }
     #endregion
+
+    #region 청소
+    [PunRPC]
+    void Clean() //청소
+    {
+        Destroy(trashHit.gameObject);
+    }
+    #endregion
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.CompareTag("Zone") && gameManager.isStarted)
@@ -169,7 +188,13 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             {
                 inOtherZone = true;
             }
-            
+        }
+        if(collision.CompareTag("Trash"))
+        {
+            if (Input.GetKeyDown(KeyCode.LeftShift) && photonView.IsMine)
+            {
+                photonView.RPC("Clean", RpcTarget.All);
+            }
         }
     }
 
@@ -187,7 +212,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-    #region chat
+    #region 간단한 의사소통을 위한 채팅
     Coroutine chatC = null;
     [PunRPC] 
     void Chat()
