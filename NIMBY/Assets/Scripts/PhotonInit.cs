@@ -44,9 +44,9 @@ public class PhotonInit : MonoBehaviourPunCallbacks
     }
     public void MakeRoom()
     {
-        SceneManager.LoadScene("Main");
         PhotonNetwork.NickName = nickName.text;
         PhotonNetwork.CreateRoom(roomName.text, new RoomOptions { MaxPlayers = 4 }, null);
+        SceneManager.LoadScene("Main");
     }
     public void JoinRandomRoom()
     {

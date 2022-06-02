@@ -12,8 +12,15 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public Text nickName;
     public Camera maincam;
     [SerializeField] GameManager gameManager;
-    [SerializeField] GameObject trash;
+    [SerializeField] GameObject[] trashes;
     [SerializeField] Text zoneT;
+
+    int i = 0;
+    int n;
+    int[] cleaningCode;
+    bool isCleaning;
+    [SerializeField] GameObject codeBox;
+    [SerializeField] Text codeText;
 
     [SerializeField] GameObject reportArea;
     bool inOtherZone;
@@ -41,17 +48,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     }
     private void Update()
     {
-        if(gameManager.isStarted)
-        {
-            if(photonView.IsMine)
-            {
-                if(Input.GetKeyDown(KeyCode.Space))
-                {
-                    photonView.RPC("MakeTrash", RpcTarget.All);
-                }
-            }
-        }
-
         if(photonView.IsMine)
         {
             if (Input.GetKeyDown(KeyCode.Return) && chatInput != null)
@@ -59,13 +55,51 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
                 photonView.RPC("Chat", RpcTarget.All);
             }
         }
+
+        if(isCleaning)
+        {
+            codeText.text = cleaningCode[i].ToString();
+            switch (cleaningCode[i])
+            {
+                case 1:
+                    codeText.text = "↑";
+                    if (Input.GetKeyDown(KeyCode.UpArrow))
+                        i++;
+                    break;
+                case 2:
+                    codeText.text = "↓";
+                    if (Input.GetKeyDown(KeyCode.DownArrow))
+                        i++;
+                    break;
+                case 3:
+                    codeText.text = "→";
+                    if (Input.GetKeyDown(KeyCode.RightArrow))
+                        i++;
+                    break;
+                case 4:
+                    codeText.text = "←";
+                    if (Input.GetKeyDown(KeyCode.LeftArrow))
+                        i++;
+                    break;
+            }
+            if(i>=n)
+            {
+                isCleaning = false;
+                photonView.RPC("Clean", RpcTarget.All);
+                codeBox.SetActive(false);
+            }
+        }
+
+
+
+
     }
     // Update is called once per frame
     void LateUpdate()
     {
         if(photonView.IsMine)
         {
-            if(!isArrested)
+            if(!(isArrested || isCleaning))
             {
                 float h = Input.GetAxisRaw("Horizontal");
                 float v = Input.GetAxisRaw("Vertical");
@@ -93,27 +127,55 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
                 photonView.RPC("Report", RpcTarget.All);
 
         }
-        //if(trashHit != null)
-        //{
-        //    if(Input.GetKeyDown(KeyCode.LeftShift) && photonView.IsMine)
-        //    {
-        //        photonView.RPC("Clean", RpcTarget.All);
-        //    }
-        //}
+
     }
     #region 쓰레기 무단투기
     Coroutine c = null;
     [PunRPC]
-    void MakeTrash() //쓰레기 무단투기
+    void MakeTrash(int type) //쓰레기 무단투기
     {
         if(inOtherZone && trashHit == null)
         {
-            Instantiate(trash, transform.position, Quaternion.identity);
+            switch(type)
+            {
+                case 1: Instantiate(trashes[0], transform.position, Quaternion.identity);break;
+                case 2: Instantiate(trashes[1], transform.position, Quaternion.identity);break;
+                case 3: Instantiate(trashes[2], transform.position, Quaternion.identity);break;
+                case 4: Instantiate(trashes[3], transform.position, Quaternion.identity);break;
+                case 5: Instantiate(trashes[4], transform.position, Quaternion.identity);break;
+            }
+            
             if (c != null) StopCoroutine(c);
             c = StartCoroutine(Criminal());
         }
     }
-
+    #region 쓰레기 생성버튼 함수
+    public void RecycleTrash()
+    {
+        if(photonView.IsMine && gameManager.isStarted)
+            photonView.RPC("MakeTrash", RpcTarget.All, 1);
+    }
+    public void NormalTrash()
+    {
+        if (photonView.IsMine && gameManager.isStarted)
+            photonView.RPC("MakeTrash", RpcTarget.All, 2);
+    }
+    public void FoodWaste()
+    {
+        if (photonView.IsMine && gameManager.isStarted)
+            photonView.RPC("MakeTrash", RpcTarget.All, 3);
+    }
+    public void Poop()
+    {
+        if (photonView.IsMine && gameManager.isStarted)
+            photonView.RPC("MakeTrash", RpcTarget.All, 4);
+    }
+    public void FurnitureWaste()
+    {
+        if (photonView.IsMine && gameManager.isStarted)
+            photonView.RPC("MakeTrash", RpcTarget.All, 5);
+    }
+    #endregion
     IEnumerator Criminal() //범죄행위를 저질렀을때(무단투기)
     {
         isCrimed = true;
@@ -161,10 +223,62 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     #endregion
 
     #region 청소
+    void CleanEvent(int type)
+    {
+        switch(type)
+        {
+            case 1:n = 5;break;
+            case 2:n = 7;break;
+            case 3:n = 7;break;
+            case 4:n = 10;break;
+            case 5:n = 14;break;
+
+        }
+        cleaningCode = new int[n];
+        for (int i = 0; i < n; i++)
+            cleaningCode[i] = Random.Range(1, 5);
+
+
+        codeBox.SetActive(true);
+        isCleaning = true;
+        i = 0;
+    }
+    
+
+    Coroutine slowC = null;
     [PunRPC]
     void Clean() //청소
     {
+        if(trashHit.GetComponent<Trash>().trashId == 3)
+        {
+            if(slowC != null)
+            {
+                StopCoroutine(slowC);
+            }
+            slowC = StartCoroutine(SlowA());
+        }
+        else if (trashHit.GetComponent<Trash>().trashId == 4)
+        {
+            if (slowC != null)
+            {
+                StopCoroutine(slowC);
+            }
+            slowC = StartCoroutine(SlowB());
+        }
         Destroy(trashHit.gameObject);
+    }
+
+    IEnumerator SlowA()
+    {
+        speed = 1.5f;
+        yield return new WaitForSeconds(3f);
+        speed = 5f;
+    }
+    IEnumerator SlowB()
+    {
+        speed = 2.5f;
+        yield return new WaitForSeconds(5f);
+        speed = 5f;
     }
     #endregion
 
@@ -176,24 +290,21 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             //들어온 구역 안내
             Debug.Log(z.owner.photonView.Owner.NickName + "의 구역");
             zoneT.text = z.owner.photonView.Owner.NickName + "의 구역";
-        }
-    }
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Zone") && gameManager.isStarted)
-        {
-            Zone z = collision.GetComponent<Zone>();
-            //현재 상대방의 구역에 있는지 확인
             if (z.owner.photonView.ViewID != photonView.ViewID)
             {
                 inOtherZone = true;
             }
         }
+    }
+    private void OnTriggerStay2D(Collider2D collision)
+    {
         if(collision.CompareTag("Trash"))
         {
             if (Input.GetKeyDown(KeyCode.LeftShift) && photonView.IsMine)
             {
-                photonView.RPC("Clean", RpcTarget.All);
+                int id = collision.GetComponent<Trash>().trashId;
+                Debug.Log(id.ToString());
+                CleanEvent(id);
             }
         }
     }
