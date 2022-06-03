@@ -7,13 +7,19 @@ using Photon.Realtime;
 
 public class Player : MonoBehaviourPunCallbacks, IPunObservable
 {
-    public float speed;
+    float speed;
     public GameObject canvas;
     public Text nickName;
     public Camera maincam;
     [SerializeField] GameManager gameManager;
     [SerializeField] GameObject[] trashes;
     [SerializeField] Text zoneT;
+
+    float gaugeNum;
+    float maxGauge;
+    [SerializeField] Image gauge;
+    int[] trashCount = new int[5];
+    [SerializeField] Text[] countText;
 
     int i = 0;
     int n;
@@ -27,8 +33,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public bool isCrimed;
 
     bool isArrested;
-    
 
+    [SerializeField] InputField inputField;
     [SerializeField] Text chatInput;
     [SerializeField] Text chatText;
     [SerializeField] GameObject chatBox;
@@ -43,19 +49,51 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             reportArea.SetActive(false);
         }
         nickName.text = photonView.Owner.NickName;
-
+        speed = 4;
+        gaugeNum = 0;
+        UpdateTrash();
 
     }
     private void Update()
     {
         if(photonView.IsMine)
         {
-            if (Input.GetKeyDown(KeyCode.Return) && chatInput != null)
+
+            if(gameManager.isStarted)
+            {
+                gaugeNum += 5f * Time.deltaTime;
+                if(gaugeNum >= 100f)
+                {
+                    int randNum = Random.Range(1, 16);
+                    if (randNum <= 5)
+                        trashCount[0]++;
+                    else if (randNum <= 9)
+                        trashCount[1]++;
+                    else if (randNum <= 12)
+                        trashCount[2]++;
+                    else if (randNum < 14)
+                        trashCount[3]++;
+                    else
+                        trashCount[4]++;
+
+                    gaugeNum -= 100f;
+                    UpdateTrash();
+                }
+                gauge.fillAmount = gaugeNum/100f;
+            }
+
+            if(Input.GetKeyDown(KeyCode.C))
+            {
+                inputField.Select();
+            }
+            if (Input.GetKeyDown(KeyCode.Return) && chatInput.text != "")
             {
                 photonView.RPC("Chat", RpcTarget.All);
+                inputField.text = "";
             }
         }
 
+        #region 청소 코드 입력
         if(isCleaning)
         {
             codeText.text = cleaningCode[i].ToString();
@@ -86,9 +124,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             {
                 isCleaning = false;
                 photonView.RPC("Clean", RpcTarget.All);
+                gaugeNum += 30;
                 codeBox.SetActive(false);
             }
         }
+        #endregion
 
 
 
@@ -129,6 +169,12 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         }
 
     }
+
+    void UpdateTrash()
+    {
+        for (int i = 0; i < 5; i++)
+            countText[i].text = trashCount[i].ToString();
+    }
     #region 쓰레기 무단투기
     Coroutine c = null;
     [PunRPC]
@@ -144,7 +190,10 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
                 case 4: Instantiate(trashes[3], transform.position, Quaternion.identity);break;
                 case 5: Instantiate(trashes[4], transform.position, Quaternion.identity);break;
             }
-            
+            trashCount[type - 1]--;
+            UpdateTrash();
+
+
             if (c != null) StopCoroutine(c);
             c = StartCoroutine(Criminal());
         }
@@ -152,26 +201,41 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     #region 쓰레기 생성버튼 함수
     public void RecycleTrash()
     {
+        if (trashCount[0] <= 0)
+            return;
+
         if(photonView.IsMine && gameManager.isStarted)
             photonView.RPC("MakeTrash", RpcTarget.All, 1);
     }
     public void NormalTrash()
     {
+        if (trashCount[1] <= 0)
+            return;
+
         if (photonView.IsMine && gameManager.isStarted)
             photonView.RPC("MakeTrash", RpcTarget.All, 2);
     }
     public void FoodWaste()
     {
+        if (trashCount[2] <= 0)
+            return;
+
         if (photonView.IsMine && gameManager.isStarted)
             photonView.RPC("MakeTrash", RpcTarget.All, 3);
     }
     public void Poop()
     {
+        if (trashCount[3] <= 0)
+            return;
+
         if (photonView.IsMine && gameManager.isStarted)
             photonView.RPC("MakeTrash", RpcTarget.All, 4);
     }
     public void FurnitureWaste()
     {
+        if (trashCount[4] <= 0)
+            return;
+
         if (photonView.IsMine && gameManager.isStarted)
             photonView.RPC("MakeTrash", RpcTarget.All, 5);
     }
@@ -179,10 +243,10 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     IEnumerator Criminal() //범죄행위를 저질렀을때(무단투기)
     {
         isCrimed = true;
-        speed = 4;
+        speed = 3;
         yield return new WaitForSeconds(10f);
         isCrimed = false;
-        speed = 5;
+        speed = 4;
     }
     #endregion
     #region 신고
@@ -272,13 +336,13 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     {
         speed = 1.5f;
         yield return new WaitForSeconds(3f);
-        speed = 5f;
+        speed = 4f;
     }
     IEnumerator SlowB()
     {
-        speed = 2.5f;
+        speed = 1.5f;
         yield return new WaitForSeconds(5f);
-        speed = 5f;
+        speed = 4f;
     }
     #endregion
 
