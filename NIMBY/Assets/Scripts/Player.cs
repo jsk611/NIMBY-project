@@ -291,6 +291,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         //정지, 실명 해제
         isArrested = false;
         arrestedUI.SetActive(false);
+        speed = 4f;
     }
     #endregion
 

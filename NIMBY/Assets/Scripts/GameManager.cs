@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     private void Start()
     {
         zones = GameObject.Find("Areas").transform.GetComponentsInChildren<Zone>();
-        timer = 100f;
+        timer = 300f;
     }
 
     // Update is called once per frame
