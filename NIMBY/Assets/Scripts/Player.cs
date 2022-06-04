@@ -286,7 +286,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         for(int i=10; i>0; i--)
         {
             arrestTimer.text ="풀리기까지 "+ i.ToString()+"초";
-            yield return new WaitForSeconds(10f);
+            yield return new WaitForSeconds(1f);
         }
         //정지, 실명 해제
         isArrested = false;
