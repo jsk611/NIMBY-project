@@ -60,6 +60,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     void GameStart()
     {
+        PhotonNetwork.CurrentRoom.IsOpen = false;
         Player[] p = FindObjectsOfType<Player>();
         activatedZones = new Zone[p.Length];
         for(int i=0; i<p.Length; i++)
@@ -74,9 +75,17 @@ public class GameManager : MonoBehaviourPunCallbacks
                 }
             }
         }
-
+        
         for(int i=0; i<PhotonNetwork.PlayerList.Length; i++)
         {
+            switch(i)
+            {
+                case 1:p[i].GetComponent<SpriteRenderer>().color = new Color(1, 0.34f, 0.34f);break;
+                case 2:p[i].GetComponent<SpriteRenderer>().color = new Color(1, 0.77f, 0.34f);break;
+                case 3:p[i].GetComponent<SpriteRenderer>().color = new Color(0.12f, 0.78f, 0f);break;
+                case 4:p[i].GetComponent<SpriteRenderer>().color = new Color(0.19f, 0.57f, 1f);break;
+            }
+
             zones[i].owner = p[i];
             zones[i].spr.color = p[i].GetComponent<SpriteRenderer>().color;
 

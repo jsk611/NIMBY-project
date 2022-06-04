@@ -353,6 +353,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             Zone z = collision.GetComponent<Zone>();
             //들어온 구역 안내
             Debug.Log(z.owner.photonView.Owner.NickName + "의 구역");
+            if(photonView.IsMine)
+                zoneT.gameObject.SetActive(true);
             zoneT.text = z.owner.photonView.Owner.NickName + "의 구역";
             if (z.owner.photonView.ViewID != photonView.ViewID)
             {
@@ -383,7 +385,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             {
                 inOtherZone = false;
             }
-            
+            if (photonView.IsMine)
+                zoneT.gameObject.SetActive(false);
         }
     }
 
