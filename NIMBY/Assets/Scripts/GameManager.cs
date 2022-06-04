@@ -1,14 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
 
 public class GameManager : MonoBehaviourPunCallbacks
 {
     [SerializeField] Zone[] zones = new Zone[4];
+    Zone[] activatedZones;
     public bool isStarted;
     public Zone myZone;
+    Zone[] ranking;
+    [SerializeField] Text[] rankTexts;
+    [SerializeField] Text winnerText;
+    [SerializeField] GameObject[] trashes;
+
+    float timer;
+    [SerializeField] Text timerText;
     // Start is called before the first frame update
     void Awake()
     {
@@ -17,6 +26,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     private void Start()
     {
         zones = GameObject.Find("Areas").transform.GetComponentsInChildren<Zone>();
+        timer = 100f;
     }
 
     // Update is called once per frame
@@ -24,6 +34,26 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if (Input.GetKeyDown(KeyCode.G) && !isStarted)
             photonView.RPC("GameStart", RpcTarget.All);
+
+        if(isStarted)
+        {
+            if (timer <= 0)
+                GameEnd();
+            else
+                timer -= Time.deltaTime;
+            timerText.text = "D - " + ((int)timer).ToString();
+
+            CheckRanking();
+            for(int i=0; i<4; i++)
+            {
+                if(i> ranking.Length-1)
+                {
+                    rankTexts[i].text = (i+1).ToString() + " : -";
+                    continue;
+                }
+                rankTexts[i].text = (i+1).ToString() + " : " + ranking[i].owner.photonView.Owner.NickName + " : " + ranking[i].Check();
+            }
+        }
     }
 
 
@@ -31,6 +61,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     void GameStart()
     {
         Player[] p = FindObjectsOfType<Player>();
+        activatedZones = new Zone[p.Length];
         for(int i=0; i<p.Length; i++)
         {
             for(int j=0; j<p.Length - i-1; j++)
@@ -54,7 +85,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                 myZone = zones[i];
                 p[i].transform.position = zones[i].transform.position;
             }
-            
+            activatedZones[i] = zones[i];
         }
         isStarted = true;
         Debug.Log("game start");
@@ -62,5 +93,40 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     }
 
+    void CheckRanking()
+    {
+        ranking = activatedZones;
 
+        for (int i = 0; i < activatedZones.Length; i++)
+        {
+            for (int j = 0; j < activatedZones.Length - i - 1; j++)
+            {
+                if (ranking[j].Check() > ranking[j + 1].Check())
+                {
+                    var tmp = ranking[j + 1];
+                    ranking[j + 1] = ranking[j];
+                    ranking[j] = tmp;
+                }
+            }
+        }
+    }
+    void GameEnd()
+    {
+        isStarted = false;
+        winnerText.gameObject.SetActive(true);
+        winnerText.text = ranking[0].owner.photonView.Owner.NickName + " ½Â¸®!!";
+
+        Vector2 loserPos = ranking[ranking.Length - 1].transform.position;
+        StartCoroutine(Punishment(loserPos));
+    }
+    IEnumerator Punishment(Vector2 loserPos)
+    {
+        for(int i=0; i<100; i++)
+        {
+            Vector2 randPos = new Vector2(loserPos.x + Random.Range(-7f, 7f), loserPos.y + Random.Range(-4f, 4f));
+            int randTrash = Random.Range(0, 5);
+            Instantiate(trashes[randTrash], randPos, Quaternion.identity);
+            yield return new WaitForSeconds(0.2f);
+        }
+    }
 }

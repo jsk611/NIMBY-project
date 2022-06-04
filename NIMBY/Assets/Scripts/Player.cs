@@ -71,7 +71,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
                         trashCount[1]++;
                     else if (randNum <= 12)
                         trashCount[2]++;
-                    else if (randNum < 14)
+                    else if (randNum <= 14)
                         trashCount[3]++;
                     else
                         trashCount[4]++;

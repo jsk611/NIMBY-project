@@ -364,6 +364,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   owner: {fileID: 0}
   spr: {fileID: 0}
+  size: {x: 15, y: 10}
+  trashNum: 0
 --- !u!1 &295494501
 GameObject:
   m_ObjectHideFlags: 0
@@ -653,6 +655,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   owner: {fileID: 0}
   spr: {fileID: 0}
+  size: {x: 15, y: 10}
+  trashNum: 0
 --- !u!1 &1455996905
 GameObject:
   m_ObjectHideFlags: 0
@@ -1008,6 +1012,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   owner: {fileID: 0}
   spr: {fileID: 0}
+  size: {x: 15, y: 10}
+  trashNum: 0
 --- !u!1 &1617935326
 GameObject:
   m_ObjectHideFlags: 0
@@ -1107,6 +1113,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   owner: {fileID: 0}
   spr: {fileID: 0}
+  size: {x: 15, y: 10}
+  trashNum: 0
 --- !u!61 &1617935330
 BoxCollider2D:
   m_ObjectHideFlags: 0
