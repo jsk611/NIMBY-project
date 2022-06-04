@@ -80,10 +80,10 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             switch(i)
             {
-                case 1:p[i].GetComponent<SpriteRenderer>().color = new Color(1, 0.34f, 0.34f);break;
-                case 2:p[i].GetComponent<SpriteRenderer>().color = new Color(1, 0.77f, 0.34f);break;
-                case 3:p[i].GetComponent<SpriteRenderer>().color = new Color(0.12f, 0.78f, 0f);break;
-                case 4:p[i].GetComponent<SpriteRenderer>().color = new Color(0.19f, 0.57f, 1f);break;
+                case 0:p[i].GetComponent<SpriteRenderer>().color = new Color(1, 0.34f, 0.34f);break;
+                case 1:p[i].GetComponent<SpriteRenderer>().color = new Color(1, 0.77f, 0.34f);break;
+                case 2:p[i].GetComponent<SpriteRenderer>().color = new Color(0.12f, 0.78f, 0f);break;
+                case 3:p[i].GetComponent<SpriteRenderer>().color = new Color(0.19f, 0.57f, 1f);break;
             }
 
             zones[i].owner = p[i];

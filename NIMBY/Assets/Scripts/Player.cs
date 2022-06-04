@@ -31,6 +31,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     [SerializeField] GameObject reportArea;
     bool inOtherZone;
     public bool isCrimed;
+    [SerializeField] GameObject arrestedUI;
+    [SerializeField] Text arrestTimer;
 
     bool isArrested;
 
@@ -267,8 +269,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     #region 체포당함
     public void Arrested()
     {
-        //자신의 존으로 이동
-        transform.position = gameManager.myZone.transform.position;
+        //감옥(중앙)으로 이동
+        transform.position = new Vector2(0, 0);
         //10초간 정지 및 실명
         if (photonView.IsMine)
             StartCoroutine(StopAndBlind());
@@ -276,13 +278,19 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
     IEnumerator StopAndBlind() 
     {
-        StopCoroutine(Criminal());
+        StopCoroutine(c);
         isCrimed = false;
         isArrested = true;
         //정지 및 실명
-        yield return new WaitForSeconds(10f);
+        arrestedUI.SetActive(true);
+        for(int i=10; i>0; i--)
+        {
+            arrestTimer.text ="풀리기까지 "+ i.ToString()+"초";
+            yield return new WaitForSeconds(10f);
+        }
         //정지, 실명 해제
         isArrested = false;
+        arrestedUI.SetActive(false);
     }
     #endregion
 

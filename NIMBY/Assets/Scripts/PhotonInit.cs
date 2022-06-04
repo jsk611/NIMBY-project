@@ -9,7 +9,8 @@ using Photon.Realtime;
 public class PhotonInit : MonoBehaviourPunCallbacks
 {
     public Text log, roomName, nickName;
-    
+    [SerializeField] Camera mainCam;
+    [SerializeField] GameObject canvas;
 
     void Start()
     {
@@ -25,15 +26,15 @@ public class PhotonInit : MonoBehaviourPunCallbacks
     }
     public override void OnJoinedRoom()
     {
+        mainCam.gameObject.SetActive(false);
+        canvas.SetActive(false);
         PhotonNetwork.Instantiate("Player", new Vector2(0, 0), Quaternion.identity);
-
     }
     public override void OnJoinedLobby()
     {
         log.text = "와! 로비 연결!";
 
     }
-
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
         log.text = message;
@@ -46,7 +47,7 @@ public class PhotonInit : MonoBehaviourPunCallbacks
     {
         PhotonNetwork.NickName = nickName.text;
         PhotonNetwork.CreateRoom(roomName.text, new RoomOptions { MaxPlayers = 4 }, null);
-        SceneManager.LoadScene("Main");
+        
     }
     public void JoinRandomRoom()
     {
@@ -55,7 +56,6 @@ public class PhotonInit : MonoBehaviourPunCallbacks
     }
     public void SearchRoom()
     {
-        SceneManager.LoadScene("Main");
         PhotonNetwork.NickName = nickName.text;
         PhotonNetwork.JoinRoom(roomName.text);
     }
