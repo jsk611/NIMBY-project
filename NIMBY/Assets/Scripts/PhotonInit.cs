@@ -11,13 +11,16 @@ public class PhotonInit : MonoBehaviourPunCallbacks
     public Text log, roomName, nickName;
     [SerializeField] Camera mainCam;
     [SerializeField] GameObject canvas;
-
+    bool isJoinedRoom;
     void Start()
     {
-        Screen.SetResolution(980, 540, false);
+        Screen.SetResolution(1920, 1080, true);
         PhotonNetwork.ConnectUsingSettings();
         PhotonNetwork.JoinLobby();
         DontDestroyOnLoad(gameObject);
+        DontDestroyOnLoad(mainCam);
+        DontDestroyOnLoad(canvas);
+        SceneManager.LoadScene("Main");
     }
 
     public override void OnConnected()
@@ -29,6 +32,7 @@ public class PhotonInit : MonoBehaviourPunCallbacks
         mainCam.gameObject.SetActive(false);
         canvas.SetActive(false);
         PhotonNetwork.Instantiate("Player", new Vector2(0, 0), Quaternion.identity);
+        isJoinedRoom = true;
     }
     public override void OnJoinedLobby()
     {
@@ -61,7 +65,27 @@ public class PhotonInit : MonoBehaviourPunCallbacks
     }
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (!isJoinedRoom) Shutdown();
+            isJoinedRoom = false;
+            PhotonNetwork.LeaveRoom();
+            SceneManager.LoadScene("First");
+            Destroy(gameObject);
+            Destroy(mainCam);
+            Destroy(canvas);
+        }    
+    }
 
+    public void Shutdown()
+    {
+        Application.Quit();
+    }
+
+    public void Restart()
+    {
+        SceneManager.LoadScene("Main");
+        PhotonNetwork.Instantiate("Player", new Vector2(0, 0), Quaternion.identity);
     }
 
 }

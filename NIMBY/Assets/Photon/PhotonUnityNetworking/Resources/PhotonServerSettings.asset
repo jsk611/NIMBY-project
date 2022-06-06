@@ -47,6 +47,7 @@ MonoBehaviour:
   - Report
   - Arrested_1
   - Clean
+  - ResetRoom
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using Photon.Pun;
 using Photon.Realtime;
 
@@ -15,9 +16,11 @@ public class GameManager : MonoBehaviourPunCallbacks
     [SerializeField] Text[] rankTexts;
     [SerializeField] Text winnerText;
     [SerializeField] GameObject[] trashes;
-
+    GameObject startTrashes;
     float timer;
     [SerializeField] Text timerText;
+    [SerializeField] GameObject exitRoomInfo;
+    [SerializeField] GameObject intro;
     // Start is called before the first frame update
     void Awake()
     {
@@ -25,6 +28,12 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
     private void Start()
     {
+        if(photonView.IsMine)
+        {
+            startTrashes = GameObject.Find("StartTrashes");
+            startTrashes.SetActive(false);
+
+        }
         zones = GameObject.Find("Areas").transform.GetComponentsInChildren<Zone>();
         timer = 300f;
     }
@@ -53,6 +62,12 @@ public class GameManager : MonoBehaviourPunCallbacks
                 }
                 rankTexts[i].text = (i+1).ToString() + " : " + ranking[i].owner.photonView.Owner.NickName + " : " + ranking[i].Check();
             }
+
+            exitRoomInfo.SetActive(false);
+        }
+        else
+        {
+            exitRoomInfo.SetActive(true);
         }
     }
 
@@ -98,8 +113,12 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         isStarted = true;
         Debug.Log("game start");
+        if(photonView.IsMine)
+        {
+            startTrashes.SetActive(true);
+            intro.SetActive(true);
 
-
+        }
     }
 
     void CheckRanking()
@@ -138,4 +157,6 @@ public class GameManager : MonoBehaviourPunCallbacks
             yield return new WaitForSeconds(0.2f);
         }
     }
+
+    
 }

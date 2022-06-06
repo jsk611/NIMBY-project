@@ -27,6 +27,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     bool isCleaning;
     [SerializeField] GameObject codeBox;
     [SerializeField] Text codeText;
+    [SerializeField] GameObject cleaningLog;
 
     [SerializeField] GameObject reportArea;
     bool inOtherZone;
@@ -98,6 +99,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         #region 청소 코드 입력
         if(isCleaning)
         {
+            cleaningLog.SetActive(true);
             codeText.text = cleaningCode[i].ToString();
             switch (cleaningCode[i])
             {
@@ -122,12 +124,13 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
                         i++;
                     break;
             }
-            if(i>=n)
+            if(i>=n || !gameManager.isStarted)
             {
                 isCleaning = false;
                 photonView.RPC("Clean", RpcTarget.All);
                 gaugeNum += 30;
                 codeBox.SetActive(false);
+                cleaningLog.SetActive(false);
             }
         }
         #endregion
@@ -198,6 +201,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
             if (c != null) StopCoroutine(c);
             c = StartCoroutine(Criminal());
+            Debug.Log("쓰레기 버림");
         }
     }
     #region 쓰레기 생성버튼 함수
@@ -375,7 +379,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     {
         if(collision.CompareTag("Trash"))
         {
-            if (Input.GetKeyDown(KeyCode.LeftShift) && photonView.IsMine)
+            if (Input.GetKeyDown(KeyCode.LeftShift) && photonView.IsMine && gameManager.isStarted)
             {
                 int id = collision.GetComponent<Trash>().trashId;
                 Debug.Log(id.ToString());
