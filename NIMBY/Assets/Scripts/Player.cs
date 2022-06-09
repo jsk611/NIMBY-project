@@ -41,6 +41,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     [SerializeField] Text chatInput;
     [SerializeField] Text chatText;
     [SerializeField] GameObject chatBox;
+
+    
     
     // Start is called before the first frame update
     void Start()

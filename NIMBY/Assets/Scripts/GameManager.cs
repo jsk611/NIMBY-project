@@ -21,18 +21,22 @@ public class GameManager : MonoBehaviourPunCallbacks
     [SerializeField] Text timerText;
     [SerializeField] GameObject exitRoomInfo;
     [SerializeField] GameObject intro;
+
+    AudioSource audioSource;
+    [SerializeField] AudioClip[] BGMs;
     // Start is called before the first frame update
     void Awake()
     {
-
     }
     private void Start()
     {
         if(photonView.IsMine)
         {
+            audioSource = GetComponent<AudioSource>();
             startTrashes = GameObject.Find("StartTrashes");
             startTrashes.SetActive(false);
-
+            audioSource.clip = BGMs[0];
+            audioSource.Play();
         }
         zones = GameObject.Find("Areas").transform.GetComponentsInChildren<Zone>();
         timer = 300f;
@@ -64,6 +68,8 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
 
             exitRoomInfo.SetActive(false);
+
+            audioSource.pitch = timer > 200f ? 1 : 1 + (200 - timer) / 200;
         }
         else
         {
@@ -117,7 +123,9 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             startTrashes.SetActive(true);
             intro.SetActive(true);
-
+            audioSource.Stop();
+            audioSource.clip = BGMs[1];
+            audioSource.Play();
         }
     }
 
@@ -146,6 +154,10 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         Vector2 loserPos = ranking[ranking.Length - 1].transform.position;
         StartCoroutine(Punishment(loserPos));
+        audioSource.pitch = 1;
+        audioSource.Stop();
+        audioSource.clip = BGMs[2];
+        audioSource.Play();
     }
     IEnumerator Punishment(Vector2 loserPos)
     {
