@@ -27,7 +27,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     bool isCleaning;
     [SerializeField] GameObject codeBox;
     [SerializeField] Text codeText;
-    [SerializeField] GameObject cleaningLog;
+    [SerializeField] Text count;
 
     [SerializeField] GameObject reportArea;
     bool inOtherZone;
@@ -42,7 +42,10 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     [SerializeField] Text chatText;
     [SerializeField] GameObject chatBox;
 
-    
+    [SerializeField] AudioClip cleaningAudio;
+    [SerializeField] AudioClip ReportingAudio;
+    [SerializeField] AudioClip ArrestedAudio;
+    AudioSource audioSource;
     
     // Start is called before the first frame update
     void Start()
@@ -53,11 +56,17 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             maincam.enabled = false;
             reportArea.SetActive(false);
         }
+        else
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.pitch = 2;
+            audioSource.clip = cleaningAudio;
+        }
+
         nickName.text = photonView.Owner.NickName;
         speed = 4;
         gaugeNum = 0;
         UpdateTrash();
-
     }
     private void Update()
     {
@@ -99,9 +108,18 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         #region 청소 코드 입력
-        if(isCleaning)
+        if (trashHit2 != null)
         {
-            cleaningLog.SetActive(true);
+            if (Input.GetKeyDown(KeyCode.LeftShift) && photonView.IsMine && gameManager.isStarted)
+            {
+                int id = trashHit2.GetComponent<Trash>().trashId;
+                Debug.Log(id.ToString());
+                CleanEvent(id);
+            }
+        }
+
+        if (isCleaning)
+        {
             codeText.text = cleaningCode[i].ToString();
             switch (cleaningCode[i])
             {
@@ -109,30 +127,39 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
                     codeText.text = "↑";
                     if (Input.GetKeyDown(KeyCode.UpArrow))
                         i++;
+                    else if (Input.anyKeyDown)
+                        i = i == 0 ? 0 : i -1;
                     break;
                 case 2:
                     codeText.text = "↓";
                     if (Input.GetKeyDown(KeyCode.DownArrow))
                         i++;
+                    else if (Input.anyKeyDown)
+                        i = i == 0 ? 0 : i - 1;
                     break;
                 case 3:
                     codeText.text = "→";
                     if (Input.GetKeyDown(KeyCode.RightArrow))
                         i++;
+                    else if (Input.anyKeyDown)
+                        i = i == 0 ? 0 : i - 1;
                     break;
                 case 4:
                     codeText.text = "←";
                     if (Input.GetKeyDown(KeyCode.LeftArrow))
                         i++;
+                    else if (Input.anyKeyDown)
+                        i = i == 0 ? 0 : i - 1;
                     break;
             }
+            count.text = "남은 횟수 : " + (cleaningCode.Length - i).ToString();
             if(i>=n || !gameManager.isStarted)
             {
                 isCleaning = false;
                 photonView.RPC("Clean", RpcTarget.All);
                 gaugeNum += 30;
                 codeBox.SetActive(false);
-                cleaningLog.SetActive(false);
+                if (photonView.IsMine) audioSource.Stop();
             }
         }
         #endregion
@@ -158,6 +185,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     }
 
     Collider2D trashHit;
+    Collider2D trashHit2;
     Collider2D[] enemyHit;
     private void FixedUpdate() //신고범위
     {
@@ -166,6 +194,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
         enemyHit = Physics2D.OverlapCircleAll(transform.position, 1.5f, LayerMask.GetMask("Player"));
         trashHit = Physics2D.OverlapCircle(transform.position, 1.5f, LayerMask.GetMask("Trash"));
+        trashHit2 = Physics2D.OverlapCircle(transform.position, 0.5f, LayerMask.GetMask("Trash"));
         Debug.DrawRay(transform.position, Vector2.right * 1.5f, Color.red);
 
         if (enemyHit != null)
@@ -174,6 +203,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
                 photonView.RPC("Report", RpcTarget.All);
 
         }
+
+        
 
     }
 
@@ -268,7 +299,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             Player iP = i.GetComponent<Player>();
 
             if (iP.isCrimed)
+            {
                 iP.Arrested();
+                audioSource.clip = ReportingAudio;
+                audioSource.Play();
+            }
         }
     }
     #endregion
@@ -277,9 +312,14 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     {
         //감옥(중앙)으로 이동
         transform.position = new Vector2(0, 0);
+        
         //10초간 정지 및 실명
         if (photonView.IsMine)
+        {
+            audioSource.clip = ArrestedAudio;
+            audioSource.Play();
             StartCoroutine(StopAndBlind());
+        }
     }
 
     IEnumerator StopAndBlind() 
@@ -317,7 +357,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         for (int i = 0; i < n; i++)
             cleaningCode[i] = Random.Range(1, 5);
 
-
+        audioSource.clip = cleaningAudio;
+        audioSource.Play();
         codeBox.SetActive(true);
         isCleaning = true;
         i = 0;
@@ -328,7 +369,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     void Clean() //청소
     {
-        if(trashHit.GetComponent<Trash>().trashId == 3)
+        if(trashHit2.GetComponent<Trash>().trashId == 3)
         {
             if(slowC != null)
             {
@@ -336,7 +377,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             }
             slowC = StartCoroutine(SlowA());
         }
-        else if (trashHit.GetComponent<Trash>().trashId == 4)
+        else if (trashHit2.GetComponent<Trash>().trashId == 4)
         {
             if (slowC != null)
             {
@@ -344,7 +385,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             }
             slowC = StartCoroutine(SlowB());
         }
-        Destroy(trashHit.gameObject);
+        Destroy(trashHit2.gameObject);
     }
 
     IEnumerator SlowA()
@@ -377,18 +418,18 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             }
         }
     }
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-        if(collision.CompareTag("Trash"))
-        {
-            if (Input.GetKeyDown(KeyCode.LeftShift) && photonView.IsMine && gameManager.isStarted)
-            {
-                int id = collision.GetComponent<Trash>().trashId;
-                Debug.Log(id.ToString());
-                CleanEvent(id);
-            }
-        }
-    }
+    //private void OnTriggerStay2D(Collider2D collision)
+    //{
+    //    if(collision.CompareTag("Trash"))
+    //    {
+    //        if (Input.GetKeyDown(KeyCode.LeftShift) && photonView.IsMine && gameManager.isStarted)
+    //        {
+    //            int id = collision.GetComponent<Trash>().trashId;
+    //            Debug.Log(id.ToString());
+    //            CleanEvent(id);
+    //        }
+    //    }
+    //}
 
     private void OnTriggerExit2D(Collider2D collision)
     {

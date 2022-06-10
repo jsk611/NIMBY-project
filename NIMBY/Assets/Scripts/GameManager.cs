@@ -154,9 +154,8 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         Vector2 loserPos = ranking[ranking.Length - 1].transform.position;
         StartCoroutine(Punishment(loserPos));
-        audioSource.pitch = 1;
-        audioSource.Stop();
         audioSource.clip = BGMs[2];
+        audioSource.pitch = 1;
         audioSource.Play();
     }
     IEnumerator Punishment(Vector2 loserPos)
