@@ -14,7 +14,7 @@ public class PhotonInit : MonoBehaviourPunCallbacks
     bool isJoinedRoom;
     void Start()
     {
-        Screen.SetResolution(1920, 1080, true);
+        Screen.SetResolution(960, 540, false);
         PhotonNetwork.ConnectUsingSettings();
         PhotonNetwork.JoinLobby();
         DontDestroyOnLoad(gameObject);

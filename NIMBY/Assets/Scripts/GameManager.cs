@@ -97,6 +97,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
         }
         
+        isStarted = true;
         for(int i=0; i<PhotonNetwork.PlayerList.Length; i++)
         {
             switch(i)
@@ -114,10 +115,10 @@ public class GameManager : MonoBehaviourPunCallbacks
             {
                 myZone = zones[i];
                 p[i].transform.position = zones[i].transform.position;
+                StartCoroutine(TrashAutoGenerate(zones[i].transform.position));
             }
             activatedZones[i] = zones[i];
         }
-        isStarted = true;
         Debug.Log("game start");
         if(photonView.IsMine)
         {
@@ -127,6 +128,8 @@ public class GameManager : MonoBehaviourPunCallbacks
             audioSource.clip = BGMs[1];
             audioSource.Play();
         }
+
+        
     }
 
     void CheckRanking()
@@ -169,5 +172,31 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
 
-    
+    IEnumerator TrashAutoGenerate(Vector2 pos)
+    {
+        if (!photonView.IsMine)
+            yield break;
+        yield return new WaitForSeconds(10f);
+        while (isStarted)
+        {
+            Vector2 randPos = new Vector2(pos.x + UnityEngine.Random.Range(-7f, 7f), pos.y + UnityEngine.Random.Range(-4f, 4f));
+            int randNum = UnityEngine.Random.Range(1, 16);
+            string n;
+            if (randNum <= 5)
+                n = "RecycleTrash";
+            else if (randNum <= 9)
+                n = "NormalTrash";
+            else if (randNum <= 12)
+                n = "FoodWaste";
+            else if (randNum <= 14)
+                n = "Poop";
+            else
+                n = "FurnitureWaste";
+
+            PhotonNetwork.Instantiate(n, randPos, Quaternion.identity);
+            yield return new WaitForSeconds(10f);
+        }
+        //yield return new WaitForEndOfFrame();
+    }
+
 }

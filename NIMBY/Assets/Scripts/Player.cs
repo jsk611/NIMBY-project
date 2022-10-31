@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -67,6 +68,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         speed = 4;
         gaugeNum = 0;
         UpdateTrash();
+        
     }
     private void Update()
     {
@@ -78,7 +80,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
                 gaugeNum += 5f * Time.deltaTime;
                 if(gaugeNum >= 100f)
                 {
-                    int randNum = Random.Range(1, 16);
+                    int randNum = UnityEngine.Random.Range(1, 16);
                     if (randNum <= 5)
                         trashCount[0]++;
                     else if (randNum <= 9)
@@ -108,11 +110,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         #region 청소 코드 입력
-        if (trashHit2 != null)
+        if (cleanHit != null)
         {
             if (Input.GetKeyDown(KeyCode.LeftShift) && photonView.IsMine && gameManager.isStarted)
             {
-                int id = trashHit2.GetComponent<Trash>().trashId;
+                int id = cleanHit.GetComponent<Trash>().trashId;
                 Debug.Log(id.ToString());
                 CleanEvent(id);
             }
@@ -185,7 +187,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     }
 
     Collider2D trashHit;
-    Collider2D trashHit2;
+    Collider2D cleanHit;
     Collider2D[] enemyHit;
     private void FixedUpdate() //신고범위
     {
@@ -193,8 +195,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             return;
 
         enemyHit = Physics2D.OverlapCircleAll(transform.position, 1.5f, LayerMask.GetMask("Player"));
-        trashHit = Physics2D.OverlapCircle(transform.position, 1.5f, LayerMask.GetMask("Trash"));
-        trashHit2 = Physics2D.OverlapCircle(transform.position, 0.5f, LayerMask.GetMask("Trash"));
+        trashHit = Physics2D.OverlapCircle(transform.position, 0.5f, LayerMask.GetMask("Trash"));
+        cleanHit = Physics2D.OverlapCircle(transform.position, 0.5f, LayerMask.GetMask("Trash"));
         Debug.DrawRay(transform.position, Vector2.right * 1.5f, Color.red);
 
         if (enemyHit != null)
@@ -207,7 +209,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         
 
     }
-
+    
     void UpdateTrash()
     {
         for (int i = 0; i < 5; i++)
@@ -218,15 +220,15 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     void MakeTrash(int type) //쓰레기 무단투기
     {
-        if(inOtherZone && trashHit == null)
+        if(photonView.IsMine && trashHit == null)
         {
-            switch(type)
+            switch (type)
             {
-                case 1: Instantiate(trashes[0], transform.position, Quaternion.identity);break;
-                case 2: Instantiate(trashes[1], transform.position, Quaternion.identity);break;
-                case 3: Instantiate(trashes[2], transform.position, Quaternion.identity);break;
-                case 4: Instantiate(trashes[3], transform.position, Quaternion.identity);break;
-                case 5: Instantiate(trashes[4], transform.position, Quaternion.identity);break;
+                case 1: PhotonNetwork.Instantiate("RecycleTrash", transform.position, Quaternion.identity); break;
+                case 2: PhotonNetwork.Instantiate("NormalTrash", transform.position, Quaternion.identity); break;
+                case 3: PhotonNetwork.Instantiate("FoodWaste", transform.position, Quaternion.identity); break;
+                case 4: PhotonNetwork.Instantiate("Poop", transform.position, Quaternion.identity); break;
+                case 5: PhotonNetwork.Instantiate("FurnitureWaste", transform.position, Quaternion.identity); break;
             }
             trashCount[type - 1]--;
             UpdateTrash();
@@ -355,7 +357,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         }
         cleaningCode = new int[n];
         for (int i = 0; i < n; i++)
-            cleaningCode[i] = Random.Range(1, 5);
+            cleaningCode[i] = UnityEngine.Random.Range(1, 5);
 
         audioSource.clip = cleaningAudio;
         audioSource.Play();
@@ -369,7 +371,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     void Clean() //청소
     {
-        if(trashHit2.GetComponent<Trash>().trashId == 3)
+        if(cleanHit.GetComponent<Trash>().trashId == 3)
         {
             if(slowC != null)
             {
@@ -377,7 +379,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             }
             slowC = StartCoroutine(SlowA());
         }
-        else if (trashHit2.GetComponent<Trash>().trashId == 4)
+        else if (cleanHit.GetComponent<Trash>().trashId == 4)
         {
             if (slowC != null)
             {
@@ -385,7 +387,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             }
             slowC = StartCoroutine(SlowB());
         }
-        Destroy(trashHit2.gameObject);
+        Destroy(cleanHit.gameObject);
     }
 
     IEnumerator SlowA()
@@ -408,28 +410,24 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         {
             Zone z = collision.GetComponent<Zone>();
             //들어온 구역 안내
-            Debug.Log(z.owner.photonView.Owner.NickName + "의 구역");
-            if(photonView.IsMine)
-                zoneT.gameObject.SetActive(true);
-            zoneT.text = z.owner.photonView.Owner.NickName + "의 구역";
-            if (z.owner.photonView.ViewID != photonView.ViewID)
+            try
             {
-                inOtherZone = true;
+                Debug.Log(z.owner.photonView.Owner.NickName + "의 구역");
+                zoneT.text = z.owner.photonView.Owner.NickName + "의 구역";
+                if (z.owner.photonView.ViewID != photonView.ViewID)
+                {
+                    inOtherZone = true;
+                }
+                if(photonView.IsMine)
+                    zoneT.gameObject.SetActive(true);
+            }
+            catch (NullReferenceException ie)
+            {
+                Debug.LogWarning(ie);
             }
         }
     }
-    //private void OnTriggerStay2D(Collider2D collision)
-    //{
-    //    if(collision.CompareTag("Trash"))
-    //    {
-    //        if (Input.GetKeyDown(KeyCode.LeftShift) && photonView.IsMine && gameManager.isStarted)
-    //        {
-    //            int id = collision.GetComponent<Trash>().trashId;
-    //            Debug.Log(id.ToString());
-    //            CleanEvent(id);
-    //        }
-    //    }
-    //}
+
 
     private void OnTriggerExit2D(Collider2D collision)
     {
@@ -437,9 +435,17 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         {
             Zone z = collision.GetComponent<Zone>();
             //상대방의 구역에서 나왔을때
-            if (z.owner.photonView.ViewID != photonView.ViewID)
+            try
             {
-                inOtherZone = false;
+                if (z.owner.photonView.ViewID != photonView.ViewID)
+                {
+                    inOtherZone = false;
+                }
+
+            }
+            catch (NullReferenceException ie)
+            {
+                Debug.LogWarning(ie);
             }
             if (photonView.IsMine)
                 zoneT.gameObject.SetActive(false);
