@@ -47,7 +47,10 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     [SerializeField] AudioClip ReportingAudio;
     [SerializeField] AudioClip ArrestedAudio;
     AudioSource audioSource;
-    
+
+    int money;
+    [SerializeField] Text moneyText;
+    bool isWorking;
     // Start is called before the first frame update
     void Start()
     {
@@ -68,7 +71,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         speed = 4;
         gaugeNum = 0;
         UpdateTrash();
-        
+        StartCoroutine(Earning());
     }
     private void Update()
     {
@@ -167,7 +170,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         #endregion
 
 
-
+        moneyText.text = money.ToString();
 
     }
     // Update is called once per frame
@@ -404,6 +407,24 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     }
     #endregion
 
+    #region µ·¹ú±â
+    IEnumerator Earning()
+    {
+        while(photonView.IsMine)
+        {
+            if(isWorking)
+            {
+                money++;
+                yield return new WaitForSeconds(0.5f);
+            }
+            else
+            {
+                yield return new WaitForEndOfFrame();
+                Debug.Log("Á÷Àå¹Û");
+            }
+        }
+    }
+    #endregion
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.CompareTag("Zone") && gameManager.isStarted)
@@ -425,6 +446,10 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             {
                 Debug.LogWarning(ie);
             }
+        }
+        if(collision.CompareTag("WorkArea") && gameManager.isStarted)
+        {
+            isWorking = true;
         }
     }
 
@@ -449,6 +474,10 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             }
             if (photonView.IsMine)
                 zoneT.gameObject.SetActive(false);
+        }
+        if (collision.CompareTag("WorkArea") && gameManager.isStarted)
+        {
+            isWorking = false;
         }
     }
 

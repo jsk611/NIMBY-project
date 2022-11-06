@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2575773110624740746}
   - component: {fileID: 7031874162196548909}
   - component: {fileID: -7743424621348858491}
+  - component: {fileID: -5741382803990507376}
   m_Layer: 7
   m_Name: Poop
   m_TagString: Trash
@@ -232,7 +233,8 @@ MonoBehaviour:
   Synchronization: 3
   OwnershipTransfer: 0
   observableSearch: 2
-  ObservedComponents: []
+  ObservedComponents:
+  - {fileID: -7743424621348858491}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -252,6 +254,27 @@ MonoBehaviour:
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 0
   m_UseLocal: 1
+--- !u!50 &-5741382803990507376
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2830769011756216892}
+  m_BodyType: 2
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &4084227606181358475
 GameObject:
   m_ObjectHideFlags: 0

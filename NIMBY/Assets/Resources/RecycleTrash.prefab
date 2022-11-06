@@ -4819,6 +4819,7 @@ GameObject:
   - component: {fileID: 2383060771800725427}
   - component: {fileID: 5568461363974006100}
   - component: {fileID: 1925519132206606015}
+  - component: {fileID: 176010636696606497}
   m_Layer: 7
   m_Name: RecycleTrash
   m_TagString: Trash
@@ -5036,7 +5037,8 @@ MonoBehaviour:
   Synchronization: 3
   OwnershipTransfer: 0
   observableSearch: 2
-  ObservedComponents: []
+  ObservedComponents:
+  - {fileID: 1925519132206606015}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -5056,3 +5058,24 @@ MonoBehaviour:
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 0
   m_UseLocal: 1
+--- !u!50 &176010636696606497
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5375301107343716625}
+  m_BodyType: 2
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
