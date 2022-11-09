@@ -855,6 +855,7 @@ GameObject:
   - component: {fileID: 1054948340}
   - component: {fileID: 1054948341}
   - component: {fileID: 1054948342}
+  - component: {fileID: 1054948343}
   m_Layer: 0
   m_Name: RecyclingCenter
   m_TagString: Trashbin
@@ -961,7 +962,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1054948337}
-  m_BodyType: 2
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -986,6 +987,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 066121563e524714389ec929dda3de02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1054948343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1054948337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 2
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1104538848
 GameObject:
   m_ObjectHideFlags: 0
@@ -1130,6 +1153,7 @@ GameObject:
   - component: {fileID: 1116096729}
   - component: {fileID: 1116096730}
   - component: {fileID: 1116096731}
+  - component: {fileID: 1116096732}
   m_Layer: 0
   m_Name: RecyclingCenter
   m_TagString: Trashbin
@@ -1236,7 +1260,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1116096726}
-  m_BodyType: 2
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -1261,6 +1285,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 066121563e524714389ec929dda3de02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1116096732
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1116096726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 4
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1175596580
 GameObject:
   m_ObjectHideFlags: 0
@@ -1487,6 +1533,7 @@ GameObject:
   - component: {fileID: 1316925805}
   - component: {fileID: 1316925806}
   - component: {fileID: 1316925807}
+  - component: {fileID: 1316925808}
   m_Layer: 0
   m_Name: RecyclingCenter
   m_TagString: Trashbin
@@ -1593,7 +1640,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1316925802}
-  m_BodyType: 2
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -1618,6 +1665,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 066121563e524714389ec929dda3de02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1316925808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1316925802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 3
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1354119268
 GameObject:
   m_ObjectHideFlags: 0
@@ -2644,6 +2713,7 @@ GameObject:
   - component: {fileID: 1931522257}
   - component: {fileID: 1931522258}
   - component: {fileID: 1931522259}
+  - component: {fileID: 1931522260}
   m_Layer: 0
   m_Name: RecyclingCenter
   m_TagString: Trashbin
@@ -2750,7 +2820,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1931522254}
-  m_BodyType: 2
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -2775,6 +2845,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 066121563e524714389ec929dda3de02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1931522260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1931522254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 1
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &2041686941
 GameObject:
   m_ObjectHideFlags: 0

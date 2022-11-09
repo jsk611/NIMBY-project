@@ -9,6 +9,12 @@ using Photon.Realtime;
 public class Player : MonoBehaviourPunCallbacks, IPunObservable
 {
     float speed;
+    float Speed
+    {
+        get { return speed; }
+        set { speed = value * (100 + speedUpPct) / 100; }
+    }
+
     public GameObject canvas;
     public Text nickName;
     public Camera maincam;
@@ -20,6 +26,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     float maxGauge;
     [SerializeField] Image gauge;
     int[] trashCount = new int[5];
+    public int[] TrashCount { get { return trashCount; } }
+    int trashSummonSpeed = 0;
+    public int TrashSummonSpeed { get { return trashSummonSpeed; } }
     [SerializeField] Text[] countText;
 
     int i = 0;
@@ -50,7 +59,14 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
     int money;
     [SerializeField] Text moneyText;
+
+    [SerializeField] GameObject ShopUI;
     bool isWorking;
+    float speedUpPct;
+    [SerializeField] Button DefenceUpBtn;
+    [SerializeField] Button EcoUpBtn;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -68,7 +84,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         nickName.text = photonView.Owner.NickName;
-        speed = 4;
+        Speed = 4;
         gaugeNum = 0;
         UpdateTrash();
         StartCoroutine(Earning());
@@ -182,7 +198,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             {
                 float h = Input.GetAxisRaw("Horizontal");
                 float v = Input.GetAxisRaw("Vertical");
-                transform.Translate(new Vector2(h, v).normalized * speed * Time.deltaTime);
+                transform.Translate(new Vector2(h, v).normalized * Speed * Time.deltaTime);
 
             }
 
@@ -287,10 +303,10 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     IEnumerator Criminal() //범죄행위를 저질렀을때(무단투기)
     {
         isCrimed = true;
-        speed = 3;
+        Speed = 3;
         yield return new WaitForSeconds(10f);
         isCrimed = false;
-        speed = 4;
+        Speed = 4;
     }
     #endregion
     #region 신고
@@ -342,7 +358,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         //정지, 실명 해제
         isArrested = false;
         arrestedUI.SetActive(false);
-        speed = 4f;
+        Speed = 4f;
     }
     #endregion
 
@@ -395,15 +411,15 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
     IEnumerator SlowA()
     {
-        speed = 1.5f;
+        Speed = 1.5f;
         yield return new WaitForSeconds(3f);
-        speed = 4f;
+        Speed = 4f;
     }
     IEnumerator SlowB()
     {
-        speed = 1.5f;
+        Speed = 1.5f;
         yield return new WaitForSeconds(5f);
-        speed = 4f;
+        Speed = 4f;
     }
     #endregion
 
@@ -424,6 +440,62 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             }
         }
     }
+    #endregion
+
+    #region 업그레이드
+    #region 스피드증가
+    public void SpeedUp()
+    {
+        if(money >= 50 && photonView.IsMine)
+        {
+            money -= 50;
+            speedUpPct += 10;
+            Speed = 4;
+        }
+    }
+    #endregion
+    #region 방어 정책
+
+    #endregion
+    #region 환경 정책
+    public void Upcycling()
+    {
+        if(money >= 50 && photonView.IsMine)
+        {
+            money -= 50;
+            trashSummonSpeed += 5;
+            Text t = EcoUpBtn.GetComponentInChildren<Text>();
+            t.text = "나무 심기(75원)";
+            EcoUpBtn.onClick.RemoveAllListeners();
+            EcoUpBtn.onClick.AddListener(PlantingTree);
+        }
+    }
+    void PlantingTree()
+    {
+        if(money >= 75 && photonView.IsMine)
+        {
+            money -= 75;
+            //쓰레기생성범위좁히기
+
+            Text t = EcoUpBtn.GetComponentInChildren<Text>();
+            t.text = "재활용 캠페인(100원)";
+            EcoUpBtn.onClick.RemoveAllListeners();
+            EcoUpBtn.onClick.AddListener(Recycling);
+        }
+    }
+    void Recycling()
+    {
+        if (money >= 100 && photonView.IsMine)
+        {
+            money -= 100;
+            //쓰레기 자연생성 안되게하기 && 진엔딩조건
+
+            Text t = EcoUpBtn.GetComponentInChildren<Text>();
+            t.text = "최대 레벨 도달";
+            EcoUpBtn.onClick.RemoveAllListeners();
+        }
+    }
+    #endregion
     #endregion
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -450,6 +522,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         if(collision.CompareTag("WorkArea") && gameManager.isStarted)
         {
             isWorking = true;
+        }
+        if(collision.CompareTag("Shop") && gameManager.isStarted)
+        {
+            if (photonView.IsMine)
+                ShopUI.SetActive(true);
         }
     }
 
@@ -478,6 +555,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         if (collision.CompareTag("WorkArea") && gameManager.isStarted)
         {
             isWorking = false;
+        }
+        if (collision.CompareTag("Shop"))
+        {
+            if (photonView.IsMine)
+                ShopUI.SetActive(false);
         }
     }
 

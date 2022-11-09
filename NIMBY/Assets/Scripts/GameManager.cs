@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -177,8 +178,11 @@ public class GameManager : MonoBehaviourPunCallbacks
         if (!photonView.IsMine)
             yield break;
         yield return new WaitForSeconds(10f);
+        Player p = GetComponent<Player>();
         while (isStarted)
         {
+            int trashes = p.TrashCount.Sum();
+            int speed = p.TrashSummonSpeed;
             Vector2 randPos = new Vector2(pos.x + UnityEngine.Random.Range(-7f, 7f), pos.y + UnityEngine.Random.Range(-4f, 4f));
             int randNum = UnityEngine.Random.Range(1, 16);
             string n;
@@ -194,7 +198,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                 n = "FurnitureWaste";
 
             PhotonNetwork.Instantiate(n, randPos, Quaternion.identity);
-            yield return new WaitForSeconds(10f);
+            yield return new WaitForSeconds(speed + (trashes >= 20 ? 5f : 25f - trashes));
         }
         //yield return new WaitForEndOfFrame();
     }
