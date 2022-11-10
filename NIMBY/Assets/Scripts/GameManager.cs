@@ -135,6 +135,12 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     void CheckRanking()
     {
+        if(GameObject.FindGameObjectsWithTag("Trash").Length <= FindObjectsOfType<Player>().Length)
+        {
+            HappyEnding();
+            return;
+        }
+
         ranking = activatedZones;
 
         for (int i = 0; i < activatedZones.Length; i++)
@@ -150,6 +156,10 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
         }
     }
+    void HappyEnding()
+    {
+
+    }
     void GameEnd()
     {
         isStarted = false;
@@ -164,12 +174,16 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
     IEnumerator Punishment(Vector2 loserPos)
     {
-        for(int i=0; i<100; i++)
+        if (photonView.IsMine)
         {
-            Vector2 randPos = new Vector2(loserPos.x + Random.Range(-7f, 7f), loserPos.y + Random.Range(-4f, 4f));
-            int randTrash = Random.Range(0, 5);
-            Instantiate(trashes[randTrash], randPos, Quaternion.identity);
-            yield return new WaitForSeconds(0.2f);
+            for(int i=0; i<100; i++)
+            {
+                Vector2 randPos = new Vector2(loserPos.x + Random.Range(-7f, 7f), loserPos.y + Random.Range(-4f, 4f));
+                int randTrash = Random.Range(0, 5);
+                Instantiate(trashes[randTrash], randPos, Quaternion.identity);
+                yield return new WaitForSeconds(0.2f);
+            }
+
         }
     }
 
@@ -198,7 +212,10 @@ public class GameManager : MonoBehaviourPunCallbacks
                 n = "FurnitureWaste";
 
             PhotonNetwork.Instantiate(n, randPos, Quaternion.identity);
-            yield return new WaitForSeconds(speed + (trashes >= 20 ? 5f : 25f - trashes));
+            float delay = speed + (trashes >= 20 ? 5f : 25f - trashes);
+            if (delay < 3f) delay = 3f;
+            Debug.Log(delay);
+            yield return new WaitForSeconds(delay);
         }
         //yield return new WaitForEndOfFrame();
     }

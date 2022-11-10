@@ -8,65 +8,75 @@ using Photon.Realtime;
 
 public class Player : MonoBehaviourPunCallbacks, IPunObservable
 {
+    #region 선언
+    [Header("오브젝트")]
+    public GameObject canvas;
+    public Camera maincam;
+    [SerializeField] GameObject[] trashes;
+
+    [Header("스크립트")]
+    [SerializeField] GameManager gameManager;
+
+    [Header("UI")]
+    [SerializeField] Image gauge;
+    float gaugeNum;
+    float maxGauge;
+    [Space(10)]
+    public Text nickName;
+    [Space(10)]
+    [SerializeField] Text zoneT;
+    [SerializeField] Text[] countText;
+    [SerializeField] GameObject codeBox;
+    [SerializeField] Text codeText;
+    [SerializeField] Text count;
+    [Space(10)]
+    [SerializeField] GameObject reportArea;
+    [SerializeField] GameObject arrestedUI;
+    [SerializeField] Text arrestTimer;
+    [Space(10)]
+    [SerializeField] InputField inputField;
+    [SerializeField] Text chatInput;
+    [SerializeField] Text chatText;
+    [SerializeField] GameObject chatBox;
+
+    [Header("오디오")]
+    [SerializeField] AudioClip cleaningAudio;
+    [SerializeField] AudioClip ReportingAudio;
+    [SerializeField] AudioClip ArrestedAudio;
+    AudioSource audioSource;
+
+    [Header("돈, 상점, 능력치 관련")]
+    [SerializeField] Text moneyText;
+    [SerializeField] GameObject ShopUI;
+    int money = 500;
+    bool isWorking;
+    float speedUpPct;
+    [SerializeField] Button SpeedUpBtn;
+    [SerializeField] Button CompeteBtn;
+    [SerializeField] Button EcoUpBtn;
+    float gaugeSpeed = 5f;
+
+    [Header("기타")]
+    public bool isCrimed;
     float speed;
     float Speed
     {
         get { return speed; }
         set { speed = value * (100 + speedUpPct) / 100; }
     }
-
-    public GameObject canvas;
-    public Text nickName;
-    public Camera maincam;
-    [SerializeField] GameManager gameManager;
-    [SerializeField] GameObject[] trashes;
-    [SerializeField] Text zoneT;
-
-    float gaugeNum;
-    float maxGauge;
-    [SerializeField] Image gauge;
     int[] trashCount = new int[5];
     public int[] TrashCount { get { return trashCount; } }
     int trashSummonSpeed = 0;
     public int TrashSummonSpeed { get { return trashSummonSpeed; } }
-    [SerializeField] Text[] countText;
-
     int i = 0;
     int n;
     int[] cleaningCode;
     bool isCleaning;
-    [SerializeField] GameObject codeBox;
-    [SerializeField] Text codeText;
-    [SerializeField] Text count;
-
-    [SerializeField] GameObject reportArea;
     bool inOtherZone;
-    public bool isCrimed;
-    [SerializeField] GameObject arrestedUI;
-    [SerializeField] Text arrestTimer;
-
     bool isArrested;
-
-    [SerializeField] InputField inputField;
-    [SerializeField] Text chatInput;
-    [SerializeField] Text chatText;
-    [SerializeField] GameObject chatBox;
-
-    [SerializeField] AudioClip cleaningAudio;
-    [SerializeField] AudioClip ReportingAudio;
-    [SerializeField] AudioClip ArrestedAudio;
-    AudioSource audioSource;
-
-    int money;
-    [SerializeField] Text moneyText;
-
-    [SerializeField] GameObject ShopUI;
-    bool isWorking;
-    float speedUpPct;
-    [SerializeField] Button DefenceUpBtn;
-    [SerializeField] Button EcoUpBtn;
-
-
+    bool hasTrueEnding;
+    public bool HasTrueEnding { get { return hasTrueEnding; } }
+    #endregion
     // Start is called before the first frame update
     void Start()
     {
@@ -88,6 +98,10 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         gaugeNum = 0;
         UpdateTrash();
         StartCoroutine(Earning());
+
+        SpeedUpBtn.onClick.AddListener(SpeedUp);
+        EcoUpBtn.onClick.AddListener(Upcycling);
+        CompeteBtn.onClick.AddListener(Wall);
     }
     private void Update()
     {
@@ -96,7 +110,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
             if(gameManager.isStarted)
             {
-                gaugeNum += 5f * Time.deltaTime;
+                gaugeNum += gaugeSpeed * Time.deltaTime;
                 if(gaugeNum >= 100f)
                 {
                     int randNum = UnityEngine.Random.Range(1, 16);
@@ -451,11 +465,88 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             money -= 50;
             speedUpPct += 10;
             Speed = 4;
+
+            Text t = SpeedUpBtn.GetComponentInChildren<Text>();
+            t.text = "스피드업II(60원)";
+            SpeedUpBtn.onClick.RemoveAllListeners();
+            SpeedUpBtn.onClick.AddListener(SpeedUp2);
+        }
+    }
+    void SpeedUp2()
+    {
+        if (money >= 60 && photonView.IsMine)
+        {
+            money -= 60;
+            speedUpPct += 10;
+            Speed = 4;
+
+            Text t = SpeedUpBtn.GetComponentInChildren<Text>();
+            t.text = "스피드업III(80원)";
+            SpeedUpBtn.onClick.RemoveAllListeners();
+            SpeedUpBtn.onClick.AddListener(SpeedUp3);
+        }
+    }
+    void SpeedUp3()
+    {
+        if (money >= 80 && photonView.IsMine)
+        {
+            money -= 80;
+            speedUpPct += 10;
+            Speed = 4;
+
+            Text t = SpeedUpBtn.GetComponentInChildren<Text>();
+            t.text = "스피드업IV(100원)";
+            SpeedUpBtn.onClick.RemoveAllListeners();
+            SpeedUpBtn.onClick.AddListener(SpeedUp4);
+        }
+    }
+    void SpeedUp4()
+    {
+        if (money >= 100 && photonView.IsMine)
+        {
+            money -= 100;
+            speedUpPct += 10;
+            Speed = 4;
         }
     }
     #endregion
-    #region 방어 정책
-
+    #region 경쟁 정책
+    public void Wall()
+    {
+        if(money >= 50 && photonView.IsMine)
+        {
+            money -= 50;
+            trashSummonSpeed -= 5;
+            Text t = CompeteBtn.GetComponentInChildren<Text>();
+            t.text = "쓰레기를 생산합니다.(생성속도증가)(75원)\n대신 쓰레기 자연 생성속도 증가";
+            CompeteBtn.onClick.RemoveAllListeners();
+            CompeteBtn.onClick.AddListener(Factory);
+        }
+    }
+    void Factory()
+    {
+        if (money >= 75 && photonView.IsMine)
+        {
+            money -= 75;
+            trashSummonSpeed -= 5;
+            gaugeSpeed = 10f;
+            Text t = CompeteBtn.GetComponentInChildren<Text>();
+            t.text = "자동 신고 장치 소환(100원)\n대신 쓰레기 자연 생성속도 증가";
+            CompeteBtn.onClick.RemoveAllListeners();
+            CompeteBtn.onClick.AddListener(AutoReport);
+        }
+    }
+    void AutoReport()
+    {
+        if (money >= 100 && photonView.IsMine)
+        {
+            trashSummonSpeed -= 5;
+            money -= 100;
+            Text t = CompeteBtn.GetComponentInChildren<Text>();
+            t.text = "최대 레벨 도달";
+            CompeteBtn.onClick.RemoveAllListeners();
+        }
+    }
     #endregion
     #region 환경 정책
     public void Upcycling()
@@ -465,7 +556,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             money -= 50;
             trashSummonSpeed += 5;
             Text t = EcoUpBtn.GetComponentInChildren<Text>();
-            t.text = "나무 심기(75원)";
+            t.text = "나무 심기(75원)\n협력 엔딩으로의 한 발자국";
             EcoUpBtn.onClick.RemoveAllListeners();
             EcoUpBtn.onClick.AddListener(PlantingTree);
         }
@@ -475,10 +566,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         if(money >= 75 && photonView.IsMine)
         {
             money -= 75;
-            //쓰레기생성범위좁히기
-
+            //진엔딩조건
             Text t = EcoUpBtn.GetComponentInChildren<Text>();
-            t.text = "재활용 캠페인(100원)";
+            t.text = "재활용 캠페인(100원)\n쓰레기가 자연 생성되지 않습니다.\n협력 엔딩으로의 한 발자국";
             EcoUpBtn.onClick.RemoveAllListeners();
             EcoUpBtn.onClick.AddListener(Recycling);
         }
@@ -489,7 +579,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         {
             money -= 100;
             //쓰레기 자연생성 안되게하기 && 진엔딩조건
-
+            trashSummonSpeed = 99999;
+            hasTrueEnding = true;
             Text t = EcoUpBtn.GetComponentInChildren<Text>();
             t.text = "최대 레벨 도달";
             EcoUpBtn.onClick.RemoveAllListeners();

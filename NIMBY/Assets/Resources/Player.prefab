@@ -1317,19 +1317,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4094996191168391300}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 3435118371553375709}
-        m_TargetAssemblyTypeName: Player, Assembly-CSharp
-        m_MethodName: Upcycling
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &2312605879119982745
 GameObject:
   m_ObjectHideFlags: 0
@@ -1989,7 +1977,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\uC5C5\uC0AC\uC774\uD074\uB9C1 \uCEA0\uD398\uC778(999\uC6D0)"
+  m_Text: "\uC5C5\uC0AC\uC774\uD074\uB9C1 \uCEA0\uD398\uC778(50\uC6D0)\n\uC4F0\uB808\uAE30
+    \uC790\uC5F0\uC0DD\uC131\uC18D\uB3C4\uAC00 \uAC10\uC18C"
 --- !u!1 &3435118371553375696
 GameObject:
   m_ObjectHideFlags: 0
@@ -2096,17 +2085,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvas: {fileID: 2636628919943392483}
-  nickName: {fileID: 3650869737735579526}
   maincam: {fileID: 6792229137102312284}
-  gameManager: {fileID: 7130248335003286422}
   trashes:
   - {fileID: 5375301107343716625, guid: 16ef9dfef682f0b4cbe5320bb927308d, type: 3}
   - {fileID: 7279101460045986040, guid: 3e78b470e7fb74d40862068f111548f1, type: 3}
   - {fileID: 1229861182691562618, guid: b02ff6369e253e44cb5fac53d61f7a57, type: 3}
   - {fileID: 2830769011756216892, guid: a80873aa18d1061448d1c50b8ee9a898, type: 3}
   - {fileID: 6708458959728645723, guid: a4c30544e93aee74bb896c711880a446, type: 3}
-  zoneT: {fileID: 7139205245466923342}
+  gameManager: {fileID: 7130248335003286422}
   gauge: {fileID: 1556724703775390474}
+  nickName: {fileID: 3650869737735579526}
+  zoneT: {fileID: 7139205245466923342}
   countText:
   - {fileID: 1328822452385970915}
   - {fileID: 5030469633827588771}
@@ -2117,7 +2106,6 @@ MonoBehaviour:
   codeText: {fileID: 7187446736887935468}
   count: {fileID: 576424264949435605}
   reportArea: {fileID: 2905704499633285100}
-  isCrimed: 0
   arrestedUI: {fileID: 6249444219501491239}
   arrestTimer: {fileID: 5407287834091852684}
   inputField: {fileID: 4019744506041085772}
@@ -2129,8 +2117,10 @@ MonoBehaviour:
   ArrestedAudio: {fileID: 8300000, guid: 0277f7ec4023ecf4996b45dd248c6e8d, type: 3}
   moneyText: {fileID: 6267864256022340606}
   ShopUI: {fileID: 6273232016950867031}
-  DefenceUpBtn: {fileID: 917588204375511263}
+  SpeedUpBtn: {fileID: 1474283018645854627}
+  CompeteBtn: {fileID: 917588204375511263}
   EcoUpBtn: {fileID: 691518400180368815}
+  isCrimed: 0
 --- !u!114 &3435118371553375708
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2612,19 +2602,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2426262172413340931}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 3435118371553375709}
-        m_TargetAssemblyTypeName: Player, Assembly-CSharp
-        m_MethodName: SpeedUp
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &3807271889519992870
 GameObject:
   m_ObjectHideFlags: 0
@@ -4146,7 +4124,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\uB85C\uBD07\uCCAD\uC18C\uAE30 \uAC1C\uBC1C(999\uC6D0)"
+  m_Text: "\uC7A5\uBCBD \uC124\uCE58(50\uC6D0)\n\uB300\uC2E0 \uC4F0\uB808\uAE30 \uC790\uC5F0
+    \uC0DD\uC131\uC18D\uB3C4 \uC99D\uAC00"
 --- !u!1 &5921102284767000505
 GameObject:
   m_ObjectHideFlags: 0
@@ -4496,7 +4475,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\uC2A4\uD53C\uB4DC \uC99D\uAC00(50\uC6D0)"
+  m_Text: "\uC2A4\uD53C\uB4DC\uC5C5I(50\uC6D0)"
 --- !u!1 &6321421813396169494
 GameObject:
   m_ObjectHideFlags: 0
