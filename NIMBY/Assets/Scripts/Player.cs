@@ -48,7 +48,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     [Header("돈, 상점, 능력치 관련")]
     [SerializeField] Text moneyText;
     [SerializeField] GameObject ShopUI;
-    int money = 500;
+    int money = 300;
     bool isWorking;
     float speedUpPct;
     [SerializeField] Button SpeedUpBtn;
@@ -74,6 +74,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     bool isCleaning;
     bool inOtherZone;
     bool isArrested;
+    bool isTreeGrown;
     bool hasTrueEnding;
     public bool HasTrueEnding { get { return hasTrueEnding; } }
     #endregion
@@ -191,7 +192,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             if(i>=n || !gameManager.isStarted)
             {
                 isCleaning = false;
-                photonView.RPC("Clean", RpcTarget.All);
+                //if(photonView.IsMine)
+                    //photonView.RPC("Clean", RpcTarget.All);
+                Clean();
                 gaugeNum += 30;
                 codeBox.SetActive(false);
                 if (photonView.IsMine) audioSource.Stop();
@@ -401,7 +404,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     
 
     Coroutine slowC = null;
-    [PunRPC]
+    //[PunRPC]
     void Clean() //청소
     {
         if(cleanHit.GetComponent<Trash>().trashId == 3)
@@ -420,7 +423,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             }
             slowC = StartCoroutine(SlowB());
         }
-        Destroy(cleanHit.gameObject);
+        if(photonView.IsMine)
+        {
+            cleanHit.GetComponent<Trash>().DestroySelf();
+            money += 3;
+        }
     }
 
     IEnumerator SlowA()
@@ -556,19 +563,21 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             money -= 50;
             trashSummonSpeed += 5;
             Text t = EcoUpBtn.GetComponentInChildren<Text>();
-            t.text = "나무 심기(75원)\n협력 엔딩으로의 한 발자국";
+            t.text = "나무 심기 캠페인(75원)\n쓰레기의 자연 생성시간 증가.\n협력 엔딩으로의 한 발자국";
             EcoUpBtn.onClick.RemoveAllListeners();
             EcoUpBtn.onClick.AddListener(PlantingTree);
         }
     }
     void PlantingTree()
     {
-        if(money >= 75 && photonView.IsMine)
+        if (money >= 75 && photonView.IsMine)
         {
             money -= 75;
             //진엔딩조건
+            trashSummonSpeed += 5;
+            PhotonNetwork.Instantiate("Trees", gameManager.myZone.transform.position, Quaternion.identity);
             Text t = EcoUpBtn.GetComponentInChildren<Text>();
-            t.text = "재활용 캠페인(100원)\n쓰레기가 자연 생성되지 않습니다.\n협력 엔딩으로의 한 발자국";
+            t.text = "재활용 캠페인(100원)\n쓰레기의 자연 생성시간 대폭 증가.\n협력 엔딩으로의 한 발자국";
             EcoUpBtn.onClick.RemoveAllListeners();
             EcoUpBtn.onClick.AddListener(Recycling);
         }
@@ -579,7 +588,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         {
             money -= 100;
             //쓰레기 자연생성 안되게하기 && 진엔딩조건
-            trashSummonSpeed = 99999;
+            trashSummonSpeed += 10;
             hasTrueEnding = true;
             Text t = EcoUpBtn.GetComponentInChildren<Text>();
             t.text = "최대 레벨 도달";

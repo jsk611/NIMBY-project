@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             audioSource.Play();
         }
         zones = GameObject.Find("Areas").transform.GetComponentsInChildren<Zone>();
-        timer = 300f;
+        timer = 360f;
     }
 
     // Update is called once per frame
@@ -135,12 +135,6 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     void CheckRanking()
     {
-        if(GameObject.FindGameObjectsWithTag("Trash").Length <= FindObjectsOfType<Player>().Length)
-        {
-            HappyEnding();
-            return;
-        }
-
         ranking = activatedZones;
 
         for (int i = 0; i < activatedZones.Length; i++)
@@ -158,19 +152,50 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
     void HappyEnding()
     {
+        winnerText.gameObject.SetActive(true);
+        winnerText.text ="¸ðµÎÀÇ ½Â¸®!!";
+        foreach (var i in zones)
+        {
+            i.transform.Find("Park").gameObject.SetActive(true);
+        }
+    }
+    void NormalEnding()
+    {
+        //½Â¸®ÀÚ
+        winnerText.gameObject.SetActive(true);
+        winnerText.text = ranking[0].owner.photonView.Owner.NickName + " ½Â¸®!!";
+        ranking[0].transform.Find("Park").gameObject.SetActive(true);
 
+        //ÆÐ¹èÀÚ
+        Vector2 loserPos = ranking[ranking.Length - 1].transform.position;
+        ranking[ranking.Length - 1].transform.Find("grass").GetComponent<SpriteRenderer>().color = new Color(0.5f,0.5f,0.5f);
+        StartCoroutine(Punishment(loserPos));
     }
     void GameEnd()
     {
         isStarted = false;
-        winnerText.gameObject.SetActive(true);
-        winnerText.text = ranking[0].owner.photonView.Owner.NickName + " ½Â¸®!!";
-
-        Vector2 loserPos = ranking[ranking.Length - 1].transform.position;
-        StartCoroutine(Punishment(loserPos));
-        audioSource.clip = BGMs[2];
-        audioSource.pitch = 1;
-        audioSource.Play();
+        if (GameObject.FindGameObjectsWithTag("Trash").Length <= FindObjectsOfType<Player>().Length)
+        {
+            foreach (var i in FindObjectsOfType<Player>())
+            {
+                if (!i.HasTrueEnding)
+                {
+                    NormalEnding();
+                    audioSource.clip = BGMs[2];
+                    audioSource.pitch = 1;
+                    audioSource.Play();
+                    return;
+                }
+            }
+            HappyEnding();
+            audioSource.clip = BGMs[2];
+            audioSource.pitch = 1;
+            audioSource.Play();
+            return;
+        }
+        else
+            NormalEnding();
+        
     }
     IEnumerator Punishment(Vector2 loserPos)
     {
