@@ -25,7 +25,7 @@ public class PhotonInit : MonoBehaviourPunCallbacks
 
     public override void OnConnected()
     {
-        log.text = "와! 서버 연결!";
+        log.text = "The Society";
     }
     public override void OnJoinedRoom()
     {
@@ -41,11 +41,11 @@ public class PhotonInit : MonoBehaviourPunCallbacks
     }
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
-        log.text = message;
+        log.text = "연결 실패, 다시 시도해주세요";
     }
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
-        log.text = message;
+        log.text = "연결 실패, 다시 시도해주세요";
     }
     public void MakeRoom()
     {

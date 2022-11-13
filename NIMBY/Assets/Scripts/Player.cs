@@ -48,7 +48,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     [Header("돈, 상점, 능력치 관련")]
     [SerializeField] Text moneyText;
     [SerializeField] GameObject ShopUI;
-    int money = 300;
+    int money = 0;
     bool isWorking;
     float speedUpPct;
     [SerializeField] Button SpeedUpBtn;
