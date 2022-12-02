@@ -67,7 +67,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                 }
                 rankTexts[i].text = (i+1).ToString() + " : " + ranking[i].owner.photonView.Owner.NickName + " : " + ranking[i].Check();
             }
-
+            rankTexts[4].text = "전체 쓰레기 갯수 : " + FindObjectsOfType<Trash>().Length;
             exitRoomInfo.SetActive(false);
 
             audioSource.pitch = timer > 200f ? 1 : 1 + (200 - timer) / 200;

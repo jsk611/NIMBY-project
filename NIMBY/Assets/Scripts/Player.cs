@@ -5,6 +5,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
+//using UnityEditor;
+//using static UnityEditor.PlayerSettings;
+//using UnityEditor.XR;
 
 public class Player : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -38,6 +41,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     [SerializeField] Text chatInput;
     [SerializeField] Text chatText;
     [SerializeField] GameObject chatBox;
+    [SerializeField] GameObject coinImg;
 
     [Header("오디오")]
     [SerializeField] AudioClip cleaningAudio;
@@ -49,6 +53,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     [SerializeField] Text moneyText;
     [SerializeField] GameObject ShopUI;
     int money = 0;
+    float moneyEarnSpeed = 0.5f;
     bool isWorking;
     float speedUpPct;
     [SerializeField] Button SpeedUpBtn;
@@ -77,6 +82,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     bool isTreeGrown;
     bool hasTrueEnding;
     public bool HasTrueEnding { get { return hasTrueEnding; } }
+    bool isOnRecyclingArea;
     #endregion
     // Start is called before the first frame update
     void Start()
@@ -102,7 +108,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
         SpeedUpBtn.onClick.AddListener(SpeedUp);
         EcoUpBtn.onClick.AddListener(Upcycling);
-        CompeteBtn.onClick.AddListener(Wall);
+        CompeteBtn.onClick.AddListener(Factory);
     }
     private void Update()
     {
@@ -219,6 +225,18 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
             }
 
+            float x = transform.position.x;
+            float y = transform.position.y;
+            float z = transform.position.z;
+
+            if (x < -30)
+                transform.position = new Vector3(-30, y, z);
+            if (x > 30)
+                transform.position = new Vector3(30, y, z);
+            if (y < -18)
+                transform.position = new Vector3(x, -18, z);
+            if (y > 18)
+                transform.position = new Vector3(x, 18, z);
         }
     }
 
@@ -269,7 +287,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             trashCount[type - 1]--;
             UpdateTrash();
 
-
+            if (isOnRecyclingArea)
+            {
+                money += 5;
+                return;
+            }
             if (c != null) StopCoroutine(c);
             c = StartCoroutine(Criminal());
             Debug.Log("쓰레기 버림");
@@ -452,7 +474,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             if(isWorking)
             {
                 money++;
-                yield return new WaitForSeconds(0.5f);
+                Instantiate(coinImg, transform.position, Quaternion.identity, transform.Find("Canvas(WorldSpace)"));
+                yield return new WaitForSeconds(moneyEarnSpeed);
             }
             else
             {
@@ -518,40 +541,55 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     }
     #endregion
     #region 경쟁 정책
-    public void Wall()
+    void Factory()
     {
-        if(money >= 50 && photonView.IsMine)
+        if (money >= 50 && photonView.IsMine)
         {
             money -= 50;
             trashSummonSpeed -= 5;
-            Text t = CompeteBtn.GetComponentInChildren<Text>();
-            t.text = "쓰레기를 생산합니다.(생성속도증가)(75원)\n대신 쓰레기 자연 생성속도 증가";
-            CompeteBtn.onClick.RemoveAllListeners();
-            CompeteBtn.onClick.AddListener(Factory);
-        }
-    }
-    void Factory()
-    {
-        if (money >= 75 && photonView.IsMine)
-        {
-            money -= 75;
-            trashSummonSpeed -= 5;
             gaugeSpeed = 10f;
             Text t = CompeteBtn.GetComponentInChildren<Text>();
-            t.text = "자동 신고 장치 소환(100원)\n대신 쓰레기 자연 생성속도 증가";
+            t.text = "화력발전소 설치(75원)\n돈을 더 빨리 벌게 됩니다.\n쓰레기 자연생성 속도증가";
             CompeteBtn.onClick.RemoveAllListeners();
-            CompeteBtn.onClick.AddListener(AutoReport);
+            CompeteBtn.onClick.AddListener(PowerPlant);
         }
     }
-    void AutoReport()
+    public void PowerPlant()
     {
-        if (money >= 100 && photonView.IsMine)
+        if(money >= 75 && photonView.IsMine)
         {
+            money -= 75;
+            moneyEarnSpeed = 0.25f;
             trashSummonSpeed -= 5;
-            money -= 100;
             Text t = CompeteBtn.GetComponentInChildren<Text>();
-            t.text = "최대 레벨 도달";
+            t.text = "쓰레기 매립지 폭파(50원)\n랜덤한 위치에 쓰레기가 생성됩니다.\n여러번 사용 가능";
             CompeteBtn.onClick.RemoveAllListeners();
+            CompeteBtn.onClick.AddListener(TrashBomb);
+        }
+    }
+    void TrashBomb()
+    {
+        if (money >= 50 && photonView.IsMine)
+        {
+            money -= 50;
+            for(int i=0; i< UnityEngine.Random.Range(1, 6); i++)
+            {
+                Vector2 randPos = new Vector2(UnityEngine.Random.Range(-28f, 28f), UnityEngine.Random.Range(-16f, 16f));
+                int randNum = UnityEngine.Random.Range(1, 16);
+                string n;
+                if (randNum <= 5)
+                    n = "RecycleTrash";
+                else if (randNum <= 9)
+                    n = "NormalTrash";
+                else if (randNum <= 12)
+                    n = "FoodWaste";
+                else if (randNum <= 14)
+                    n = "Poop";
+                else
+                    n = "FurnitureWaste";
+
+                PhotonNetwork.Instantiate(n, randPos, Quaternion.identity);
+            }
         }
     }
     #endregion
@@ -589,11 +627,16 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             money -= 100;
             //쓰레기 자연생성 안되게하기 && 진엔딩조건
             trashSummonSpeed += 10;
-            hasTrueEnding = true;
+            photonView.RPC("TrueEndingOn", RpcTarget.All);
             Text t = EcoUpBtn.GetComponentInChildren<Text>();
             t.text = "최대 레벨 도달";
             EcoUpBtn.onClick.RemoveAllListeners();
         }
+    }
+    [PunRPC]
+    void TrueEndingOn()
+    {
+        hasTrueEnding = true;
     }
     #endregion
     #endregion
@@ -628,6 +671,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             if (photonView.IsMine)
                 ShopUI.SetActive(true);
         }
+        if (collision.CompareTag("Trashbin"))
+            isOnRecyclingArea = true;
     }
 
 
@@ -661,6 +706,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             if (photonView.IsMine)
                 ShopUI.SetActive(false);
         }
+        if (collision.CompareTag("Trashbin"))
+            isOnRecyclingArea = false;
     }
 
     #region 간단한 의사소통을 위한 채팅
