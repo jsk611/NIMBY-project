@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             audioSource.Play();
         }
         zones = GameObject.Find("Areas").transform.GetComponentsInChildren<Zone>();
-        timer = 360f;
+        timer = 365f;
     }
 
     // Update is called once per frame

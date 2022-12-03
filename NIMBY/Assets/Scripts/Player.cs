@@ -47,6 +47,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     [SerializeField] AudioClip cleaningAudio;
     [SerializeField] AudioClip ReportingAudio;
     [SerializeField] AudioClip ArrestedAudio;
+    [SerializeField] AudioClip BoomAudio;
     AudioSource audioSource;
 
     [Header("돈, 상점, 능력치 관련")]
@@ -108,7 +109,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
         SpeedUpBtn.onClick.AddListener(SpeedUp);
         EcoUpBtn.onClick.AddListener(Upcycling);
-        CompeteBtn.onClick.AddListener(Factory);
+        CompeteBtn.onClick.AddListener(PowerPlant);
     }
     private void Update()
     {
@@ -289,7 +290,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
             if (isOnRecyclingArea)
             {
-                money += 5;
+                money += 3;
+                GameObject g = Instantiate(coinImg, transform.position, Quaternion.identity, transform.Find("Canvas(WorldSpace)"));
+                Destroy(g, 0.5f);
                 return;
             }
             if (c != null) StopCoroutine(c);
@@ -449,6 +452,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         {
             cleanHit.GetComponent<Trash>().DestroySelf();
             money += 3;
+            GameObject g = Instantiate(coinImg, transform.position, Quaternion.identity, transform.Find("Canvas(WorldSpace)"));
+            Destroy(g, 0.5f);
         }
     }
 
@@ -474,7 +479,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             if(isWorking)
             {
                 money++;
-                Instantiate(coinImg, transform.position, Quaternion.identity, transform.Find("Canvas(WorldSpace)"));
+                GameObject g = Instantiate(coinImg, transform.position, Quaternion.identity, transform.Find("Canvas(WorldSpace)"));
+                Destroy(g, 0.5f);
                 yield return new WaitForSeconds(moneyEarnSpeed);
             }
             else
@@ -541,7 +547,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     }
     #endregion
     #region 경쟁 정책
-    void Factory()
+    void PowerPlant()
     {
         if (money >= 50 && photonView.IsMine)
         {
@@ -549,12 +555,12 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             trashSummonSpeed -= 5;
             gaugeSpeed = 10f;
             Text t = CompeteBtn.GetComponentInChildren<Text>();
-            t.text = "화력발전소 설치(75원)\n돈을 더 빨리 벌게 됩니다.\n쓰레기 자연생성 속도증가";
+            t.text = "공장 설치(75원)\n돈을 더 빨리 벌게 됩니다.\n쓰레기 자연생성 속도증가";
             CompeteBtn.onClick.RemoveAllListeners();
-            CompeteBtn.onClick.AddListener(PowerPlant);
+            CompeteBtn.onClick.AddListener(Factory);
         }
     }
-    public void PowerPlant()
+    public void Factory()
     {
         if(money >= 75 && photonView.IsMine)
         {
@@ -562,7 +568,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             moneyEarnSpeed = 0.25f;
             trashSummonSpeed -= 5;
             Text t = CompeteBtn.GetComponentInChildren<Text>();
-            t.text = "쓰레기 매립지 폭파(50원)\n랜덤한 위치에 쓰레기가 생성됩니다.\n여러번 사용 가능";
+            t.text = "쓰레기 매립지 폭파(50원)\n랜덤한 위치에 쓰레기가 여러개 생성됩니다.\n여러번 사용 가능";
             CompeteBtn.onClick.RemoveAllListeners();
             CompeteBtn.onClick.AddListener(TrashBomb);
         }
@@ -572,7 +578,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         if (money >= 50 && photonView.IsMine)
         {
             money -= 50;
-            for(int i=0; i< UnityEngine.Random.Range(1, 6); i++)
+            for(int i=0; i< UnityEngine.Random.Range(3, 9); i++)
             {
                 Vector2 randPos = new Vector2(UnityEngine.Random.Range(-28f, 28f), UnityEngine.Random.Range(-16f, 16f));
                 int randNum = UnityEngine.Random.Range(1, 16);
@@ -589,8 +595,15 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
                     n = "FurnitureWaste";
 
                 PhotonNetwork.Instantiate(n, randPos, Quaternion.identity);
+                photonView.RPC("BombAudio", RpcTarget.All);
             }
         }
+    }
+    [PunRPC]
+    void BombAudio()
+    {
+        audioSource.clip = BoomAudio;
+        audioSource.Play();
     }
     #endregion
     #region 환경 정책

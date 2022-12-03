@@ -2191,6 +2191,7 @@ MonoBehaviour:
   cleaningAudio: {fileID: 8300000, guid: 9cbcaa0328a96164ea1239e96fd4d247, type: 3}
   ReportingAudio: {fileID: 8300000, guid: 728e4ea4111ea7d4fb9be25a8438c1f0, type: 3}
   ArrestedAudio: {fileID: 8300000, guid: 0277f7ec4023ecf4996b45dd248c6e8d, type: 3}
+  BoomAudio: {fileID: 8300000, guid: 7e26c9daf4c32483b9c2790e662d3f1b, type: 3}
   moneyText: {fileID: 6267864256022340606}
   ShopUI: {fileID: 6273232016950867031}
   SpeedUpBtn: {fileID: 1474283018645854627}
@@ -3571,7 +3572,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: D - 300
+  m_Text: D - 365
 --- !u!1 &5225515200854308501
 GameObject:
   m_ObjectHideFlags: 0
@@ -4202,9 +4203,9 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\uACF5\uC7A5 \uC124\uCE58(50\uC6D0)\n\uC4F0\uB808\uAE30 \uAC8C\uC774\uC9C0
-    \uC18D\uB3C4 \uC99D\uAC00\n\uB300\uC2E0 \uC4F0\uB808\uAE30 \uC790\uC5F0 \uC0DD\uC131\uC18D\uB3C4
-    \uC99D\uAC00"
+  m_Text: "\uD654\uB825\uBC1C\uC804\uC18C \uC124\uCE58(50\uC6D0)\n\uC4F0\uB808\uAE30
+    \uAC8C\uC774\uC9C0 \uC18D\uB3C4 \uC99D\uAC00\n\uB300\uC2E0 \uC4F0\uB808\uAE30
+    \uC790\uC5F0 \uC0DD\uC131\uC18D\uB3C4 \uC99D\uAC00"
 --- !u!1 &5921102284767000505
 GameObject:
   m_ObjectHideFlags: 0

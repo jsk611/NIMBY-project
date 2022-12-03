@@ -68,6 +68,9 @@ public class PhotonInit : MonoBehaviourPunCallbacks
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (!isJoinedRoom) Shutdown();
+            GameManager gameManager = FindObjectOfType<GameManager>();
+            if (gameManager.isStarted)
+                return;
             isJoinedRoom = false;
             PhotonNetwork.LeaveRoom();
             SceneManager.LoadScene("First");
